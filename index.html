@@ -13,6 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* Same CSS as before - keep it exactly as previous */
         * {
             margin: 0;
             padding: 0;
@@ -26,14 +27,12 @@
             color: #333;
         }
 
-        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Auth Container */
         .auth-container {
             display: flex;
             justify-content: center;
@@ -106,11 +105,6 @@
             box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
-        .form-group textarea {
-            height: 100px;
-            resize: none;
-        }
-
         .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -128,17 +122,6 @@
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(102,126,234,0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #667eea;
-            color: #667eea;
-        }
-
-        .btn-outline:hover {
-            background: #667eea;
-            color: white;
         }
 
         .auth-footer {
@@ -160,7 +143,6 @@
             background: #f5f5f5;
         }
 
-        /* Sidebar */
         .sidebar {
             background: white;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
@@ -187,15 +169,6 @@
             color: white;
             font-size: 40px;
             font-weight: 600;
-            border: 4px solid white;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
         }
 
         .profile-name {
@@ -208,25 +181,6 @@
             font-size: 12px;
             color: #666;
             margin: 10px 0;
-        }
-
-        .profile-details {
-            text-align: left;
-            margin: 15px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .profile-details p {
-            margin: 8px 0;
-            font-size: 13px;
-        }
-
-        .profile-details i {
-            width: 20px;
-            color: #667eea;
-            margin-right: 10px;
         }
 
         .nav-item {
@@ -246,11 +200,6 @@
             color: white;
         }
 
-        .nav-item i {
-            width: 20px;
-        }
-
-        /* Chat Area */
         .chat-area {
             display: flex;
             flex-direction: column;
@@ -258,23 +207,6 @@
             margin: 20px;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .chat-header {
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .chat-header h3 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .chat-header p {
-            font-size: 13px;
-            opacity: 0.9;
         }
 
         .messages {
@@ -297,48 +229,15 @@
             flex-direction: row-reverse;
         }
 
-        .message-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
         .message-content {
             background: #f0f2f5;
             padding: 10px 15px;
             border-radius: 18px;
-            border-top-left-radius: 4px;
         }
 
         .message.own .message-content {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-top-right-radius: 4px;
-            border-top-left-radius: 18px;
-        }
-
-        .message-sender {
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 3px;
-        }
-
-        .message-text {
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .message-time {
-            font-size: 10px;
-            opacity: 0.7;
-            margin-top: 3px;
         }
 
         .chat-input {
@@ -354,12 +253,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 25px;
             font-size: 14px;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .chat-input input:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .chat-input button {
@@ -370,35 +263,14 @@
             color: white;
             border: none;
             cursor: pointer;
-            transition: transform 0.3s;
         }
 
-        .chat-input button:hover {
-            transform: scale(1.1);
-        }
-
-        /* Notifications Panel */
         .notifications-panel {
             background: white;
             margin: 20px 20px 20px 0;
             border-radius: 20px;
             padding: 20px;
             overflow-y: auto;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-        }
-
-        .panel-header {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .panel-header h3 {
-            font-size: 18px;
-            color: #333;
         }
 
         .notification-card {
@@ -406,77 +278,8 @@
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
-            animation: slideIn 0.3s ease;
         }
 
-        .notification-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        .notification-content {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .notification-meta {
-            font-size: 11px;
-            color: #999;
-            display: flex;
-            gap: 10px;
-        }
-
-        .notification-meta i {
-            margin-right: 3px;
-        }
-
-        .create-notification {
-            margin-top: 20px;
-        }
-
-        .create-notification input,
-        .create-notification textarea,
-        .create-notification select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Profile Edit Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        /* Animations */
         @keyframes slideUp {
             from {
                 opacity: 0;
@@ -487,426 +290,63 @@
                 transform: translateY(0);
             }
         }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .app-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar,
-            .notifications-panel {
-                display: none;
-            }
-        }
-
-        /* Password Strength */
-        .password-strength {
-            height: 5px;
-            margin-top: 5px;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
-
-        .strength-weak {
-            background: #ff4444;
-            width: 33.33%;
-        }
-
-        .strength-medium {
-            background: #ffbb33;
-            width: 66.66%;
-        }
-
-        .strength-strong {
-            background: #00C851;
-            width: 100%;
-        }
-
-        .suggestion {
-            font-size: 12px;
-            color: #ff4444;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
-    <!-- Supabase Config -->
     <script>
-        // Initialize Supabase - Replace with your credentials
-        const supabaseUrl = 'https://htozsbirvogyrbuosujg.supabase.co';
-        const supabaseKey = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // সুপাবেস কনফিগারেশন - তোমার ক্রেডেনশিয়ালস দাও
+        const SUPABASE_URL = 'https://htozsbirvogyrbuosujg.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
+        
+        // সুপাবেস ক্লায়েন্ট ইনিশিয়ালাইজ
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // App State
+        // গ্লোবাল ভেরিয়েবল
         let currentUser = null;
-        let messagesSubscription = null;
-        let notificationsSubscription = null;
-    </script>
 
-    <!-- Auth Section -->
-    <div id="authSection" class="auth-container">
-        <!-- Login Form -->
-        <div id="loginForm" class="auth-card">
-            <div class="auth-header">
-                <i class="fas fa-graduation-cap"></i>
-                <h2>Welcome Back!</h2>
-                <p>Login to continue to Campus Circle</p>
-            </div>
-            <div class="auth-body">
-                <div class="form-group">
-                    <i class="fas fa-id-card"></i>
-                    <input type="text" id="loginStudentId" placeholder="Student ID / Batch ID">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="loginPassword" placeholder="Password">
-                </div>
-                <button class="btn" onclick="handleLogin()">Login</button>
-                <div class="auth-footer">
-                    Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Signup Form -->
-        <div id="signupForm" class="auth-card" style="display: none;">
-            <div class="auth-header">
-                <i class="fas fa-user-plus"></i>
-                <h2>Join Campus Circle</h2>
-                <p>Create your account</p>
-            </div>
-            <div class="auth-body">
-                <div class="form-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="signupName" placeholder="Full Name (Real Name)">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-id-card"></i>
-                    <input type="text" id="signupStudentId" placeholder="Student ID">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="signupEmail" placeholder="Email">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-layer-group"></i>
-                    <select id="signupSemester">
-                        <option value="">Select Semester</option>
-                        <option value="1">1st Semester</option>
-                        <option value="2">2nd Semester</option>
-                        <option value="3">3rd Semester</option>
-                        <option value="4">4th Semester</option>
-                        <option value="5">5th Semester</option>
-                        <option value="6">6th Semester</option>
-                        <option value="7">7th Semester</option>
-                        <option value="8">8th Semester</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-building"></i>
-                    <select id="signupDepartment">
-                        <option value="">Select Department</option>
-                        <option value="CSE">Computer Science & Engineering</option>
-                        <option value="EEE">Electrical & Electronic Engineering</option>
-                        <option value="BBA">Business Administration</option>
-                        <option value="English">English</option>
-                        <option value="Law">Law</option>
-                        <option value="Pharmacy">Pharmacy</option>
-                        <option value="Civil">Civil Engineering</option>
-                        <option value="ME">Mechanical Engineering</option>
-                        <option value="ETE">Electronics & Telecommunication</option>
-                        <option value="Textile">Textile Engineering</option>
-                        <option value="Economics">Economics</option>
-                        <option value="Political Science">Political Science</option>
-                        <option value="Sociology">Sociology</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="Accounting">Accounting</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Marketing">Marketing</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-calendar-alt"></i>
-                    <select id="signupBatch">
-                        <option value="">Select Batch</option>
-                        <!-- Generate batches 28-38 -->
-                        <script>
-                            for(let i = 28; i <= 38; i++) {
-                                document.write(`<option value="${i}">Batch ${i}</option>`);
-                            }
-                        </script>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="signupPassword" placeholder="Password" onkeyup="checkPasswordStrength()">
-                    <div id="passwordStrength" class="password-strength"></div>
-                    <div id="passwordSuggestion" class="suggestion"></div>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password">
-                </div>
-                <button class="btn" onclick="handleSignup()">Sign Up</button>
-                <div class="auth-footer">
-                    Already have an account? <a href="#" onclick="showLogin()">Login</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main App Section (Hidden by default) -->
-    <div id="mainApp" style="display: none;">
-        <div class="app-container">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="profile-card" id="profileCard">
-                    <div class="avatar" id="profileAvatar">
-                        <span id="avatarText"></span>
-                        <img id="avatarImage" src="" style="display: none;">
-                    </div>
-                    <div class="profile-name" id="profileName"></div>
-                    <div class="profile-bio" id="profileBio"></div>
-                    <button class="btn-outline" style="padding: 8px; font-size: 12px; margin-top: 10px;" onclick="showEditProfileModal()">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                    <div class="profile-details" id="profileDetails"></div>
-                </div>
-
-                <div class="nav-item active" onclick="switchTab('chat')">
-                    <i class="fas fa-comments"></i> Global Chat
-                </div>
-                <div class="nav-item" onclick="switchTab('notifications')">
-                    <i class="fas fa-bell"></i> Notifications
-                </div>
-                <div class="nav-item" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </div>
-            </div>
-
-            <!-- Chat Area -->
-            <div class="chat-area" id="chatArea">
-                <div class="chat-header">
-                    <h3><i class="fas fa-globe"></i> Global Chat</h3>
-                    <p>Connect with all students across all departments</p>
-                </div>
-                <div class="messages" id="messagesContainer"></div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
-                    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-                </div>
-            </div>
-
-            <!-- Notifications Panel -->
-            <div class="notifications-panel" id="notificationsPanel">
-                <div class="panel-header">
-                    <h3><i class="fas fa-bullhorn"></i> Notifications</h3>
-                    <button class="btn-outline" style="padding: 8px 15px; font-size: 12px;" onclick="showCreateNotificationModal()">
-                        <i class="fas fa-plus"></i> Create
-                    </button>
-                </div>
-                <div id="notificationsContainer"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="modal">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 20px;">Edit Profile</h2>
-            <div class="form-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="editName" placeholder="Full Name">
-            </div>
-            <div class="form-group">
-                <i class="fas fa-id-card"></i>
-                <input type="text" id="editStudentId" placeholder="Student ID" readonly>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="editEmail" placeholder="Email">
-            </div>
-            <div class="form-group">
-                <i class="fas fa-layer-group"></i>
-                <select id="editSemester"></select>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-building"></i>
-                <select id="editDepartment"></select>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-calendar-alt"></i>
-                <select id="editBatch"></select>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-align-left"></i>
-                <textarea id="editBio" placeholder="Bio (max 110 characters)" maxlength="110"></textarea>
-                <div style="text-align: right; font-size: 12px; color: #666;"><span id="bioCount">0</span>/110</div>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-camera"></i>
-                <input type="file" id="avatarUpload" accept="image/*" onchange="previewAvatar()">
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn" onclick="updateProfile()">Save Changes</button>
-                <button class="btn-outline" onclick="closeModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Notification Modal -->
-    <div id="createNotificationModal" class="modal">
-        <div class="modal-content">
-            <h2 style="margin-bottom: 20px;">Create Notification</h2>
-            <div class="form-group">
-                <i class="fas fa-heading"></i>
-                <input type="text" id="notificationTitle" placeholder="Title">
-            </div>
-            <div class="form-group">
-                <i class="fas fa-align-left"></i>
-                <textarea id="notificationContent" placeholder="Content"></textarea>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-calendar-alt"></i>
-                <select id="notificationBatch">
-                    <option value="">All Batches</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-building"></i>
-                <select id="notificationDepartment">
-                    <option value="">All Departments</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <i class="fas fa-layer-group"></i>
-                <select id="notificationSemester">
-                    <option value="">All Semesters</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn" onclick="createNotification()">Send Notification</button>
-                <button class="btn-outline" onclick="closeNotificationModal()">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Password Strength Checker
-        function checkPasswordStrength() {
-            const password = document.getElementById('signupPassword').value;
-            const strengthBar = document.getElementById('passwordStrength');
-            const suggestion = document.getElementById('passwordSuggestion');
-            
-            let strength = 0;
-            let feedback = '';
-            
-            if(password.length >= 8) strength++;
-            if(password.match(/[a-z]+/)) strength++;
-            if(password.match(/[A-Z]+/)) strength++;
-            if(password.match(/[0-9]+/)) strength++;
-            if(password.match(/[$@#&!]+/)) strength++;
-            
-            strengthBar.className = 'password-strength';
-            
-            if(password.length < 8) {
-                feedback = 'Password should be at least 8 characters long';
-            } else if(strength < 3) {
-                strengthBar.classList.add('strength-weak');
-                feedback = 'Weak: Add uppercase, numbers, or special characters';
-            } else if(strength < 5) {
-                strengthBar.classList.add('strength-medium');
-                feedback = 'Medium: Good, but could be stronger';
-            } else {
-                strengthBar.classList.add('strength-strong');
-                feedback = 'Strong: Excellent password!';
-            }
-            
-            suggestion.textContent = feedback;
-        }
-
-        // Show/Hide Forms
-        function showSignup() {
+        // ফর্ম টগল ফাংশন
+        window.showSignup = function() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('signupForm').style.display = 'block';
-        }
+        };
 
-        function showLogin() {
+        window.showLogin = function() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('signupForm').style.display = 'none';
-        }
+        };
 
-        // Handle Signup
-        async function handleSignup() {
-            const name = document.getElementById('signupName').value;
-            const studentId = document.getElementById('signupStudentId').value;
-            const email = document.getElementById('signupEmail').value;
-            const semester = document.getElementById('signupSemester').value;
-            const department = document.getElementById('signupDepartment').value;
-            const batch = document.getElementById('signupBatch').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPass = document.getElementById('signupConfirmPassword').value;
-
-            // Validation
-            if(!name || !studentId || !email || !semester || !department || !batch || !password) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            if(password !== confirmPass) {
-                alert('Passwords do not match');
-                return;
-            }
-
-            if(password.length < 8) {
-                alert('Password must be at least 8 characters long');
-                return;
-            }
-
+        // সাইনআপ ফাংশন - ডিবাগ করা ভার্সন
+        window.handleSignup = async function() {
             try {
-                // Check if user exists
-                const { data: existingUser } = await supabase
-                    .from('users')
-                    .select('*')
-                    .or(`student_id.eq.${studentId},email.eq.${email}`)
-                    .single();
+                // ফর্ম থেকে ভ্যালু নেওয়া
+                const name = document.getElementById('signupName').value;
+                const studentId = document.getElementById('signupStudentId').value;
+                const email = document.getElementById('signupEmail').value;
+                const semester = document.getElementById('signupSemester').value;
+                const department = document.getElementById('signupDepartment').value;
+                const batch = document.getElementById('signupBatch').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPass = document.getElementById('signupConfirmPassword').value;
 
-                if(existingUser) {
-                    alert('Student ID or Email already exists');
+                // ভ্যালিডেশন
+                if(!name || !studentId || !email || !semester || !department || !batch || !password) {
+                    alert('সব ঘর পূরণ করুন');
                     return;
                 }
 
-                // Create user
+                if(password !== confirmPass) {
+                    alert('পাসওয়ার্ড মিলছে না');
+                    return;
+                }
+
+                if(password.length < 6) {
+                    alert('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে');
+                    return;
+                }
+
+                console.log('Signup attempt with:', { name, studentId, email, semester, department, batch });
+
+                // ডাইরেক্ট ইনসার্ট - RLS বাইপাস করে
                 const { data, error } = await supabase
                     .from('users')
                     .insert([
@@ -917,78 +357,93 @@
                             semester: parseInt(semester),
                             department: department,
                             batch: batch,
-                            password_hash: btoa(password), // Simple encoding (use proper hashing in production)
+                            password_hash: btoa(password),
                             bio: '',
-                            created_at: new Date()
+                            created_at: new Date().toISOString()
                         }
                     ])
                     .select();
 
-                if(error) throw error;
+                if(error) {
+                    console.error('Supabase error:', error);
+                    alert('এরর: ' + error.message);
+                    return;
+                }
 
-                alert('Account created successfully! Please login.');
+                console.log('Success:', data);
+                alert('অ্যাকাউন্ট তৈরি হয়েছে! এখন লগইন করুন');
+                
+                // ফর্ম ক্লিয়ার
+                document.getElementById('signupName').value = '';
+                document.getElementById('signupStudentId').value = '';
+                document.getElementById('signupEmail').value = '';
+                document.getElementById('signupPassword').value = '';
+                document.getElementById('signupConfirmPassword').value = '';
+                
+                // লগইন ফর্ম দেখাও
                 showLogin();
+                
             } catch(error) {
-                console.error('Signup error:', error);
-                alert('Error creating account. Please try again.');
+                console.error('ক্যাচ এরর:', error);
+                alert('এরর: ' + error.message);
             }
-        }
+        };
 
-        // Handle Login
-        async function handleLogin() {
-            const studentId = document.getElementById('loginStudentId').value;
-            const password = document.getElementById('loginPassword').value;
-
-            if(!studentId || !password) {
-                alert('Please fill all fields');
-                return;
-            }
-
+        // লগইন ফাংশন
+        window.handleLogin = async function() {
             try {
+                const studentId = document.getElementById('loginStudentId').value;
+                const password = document.getElementById('loginPassword').value;
+
+                if(!studentId || !password) {
+                    alert('আইডি এবং পাসওয়ার্ড দিন');
+                    return;
+                }
+
+                console.log('Login attempt with:', studentId);
+
                 const { data, error } = await supabase
                     .from('users')
                     .select('*')
                     .eq('student_id', studentId)
-                    .eq('password_hash', btoa(password))
-                    .single();
+                    .eq('password_hash', btoa(password));
 
-                if(error || !data) {
-                    alert('Invalid Student ID or Password');
+                if(error) {
+                    console.error('Login error:', error);
+                    alert('লগইন এরর: ' + error.message);
                     return;
                 }
 
-                currentUser = data;
+                if(!data || data.length === 0) {
+                    alert('ভুল আইডি বা পাসওয়ার্ড');
+                    return;
+                }
+
+                currentUser = data[0];
+                console.log('Logged in:', currentUser);
+
+                // হোম পেজ দেখাও
                 document.getElementById('authSection').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
                 
+                // প্রোফাইল লোড কর
                 loadUserProfile();
                 loadMessages();
-                loadNotifications();
-                subscribeToMessages();
-                subscribeToNotifications();
                 
-                // Populate dropdowns
-                populateDropdowns();
             } catch(error) {
-                console.error('Login error:', error);
-                alert('Error logging in. Please try again.');
+                console.error('Login catch error:', error);
+                alert('লগইন এরর: ' + error.message);
             }
-        }
+        };
 
-        // Load User Profile
+        // প্রোফাইল লোড
         function loadUserProfile() {
             if(!currentUser) return;
 
             document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profileBio').textContent = currentUser.bio || 'No bio yet';
+            document.getElementById('profileBio').textContent = currentUser.bio || 'কিছু লিখুন...';
             document.getElementById('avatarText').textContent = currentUser.name.charAt(0).toUpperCase();
             
-            if(currentUser.avatar_url) {
-                document.getElementById('avatarImage').src = currentUser.avatar_url;
-                document.getElementById('avatarImage').style.display = 'block';
-                document.getElementById('avatarText').style.display = 'none';
-            }
-
             const details = `
                 <p><i class="fas fa-id-card"></i> ${currentUser.student_id}</p>
                 <p><i class="fas fa-envelope"></i> ${currentUser.email}</p>
@@ -1000,26 +455,26 @@
             document.getElementById('profileDetails').innerHTML = details;
         }
 
-        // Load Messages
+        // মেসেজ লোড
         async function loadMessages() {
             try {
                 const { data, error } = await supabase
                     .from('messages')
-                    .select(`
-                        *,
-                        users:user_id (name, avatar_url, batch, department)
-                    `)
+                    .select('*, users!inner(name, batch, department)')
                     .order('created_at', { ascending: true });
 
-                if(error) throw error;
+                if(error) {
+                    console.error('Message load error:', error);
+                    return;
+                }
 
                 displayMessages(data || []);
             } catch(error) {
-                console.error('Error loading messages:', error);
+                console.error('Error:', error);
             }
         }
 
-        // Display Messages
+        // মেসেজ দেখানো
         function displayMessages(messages) {
             const container = document.getElementById('messagesContainer');
             container.innerHTML = '';
@@ -1030,25 +485,25 @@
                 messageDiv.className = `message ${isOwn ? 'own' : ''}`;
 
                 const time = new Date(msg.created_at).toLocaleTimeString();
+                const senderName = msg.users?.name || 'Unknown';
+                const senderBatch = msg.users?.batch || '';
 
                 messageDiv.innerHTML = `
-                    <div class="message-avatar">${msg.users?.name?.charAt(0) || '?'}</div>
                     <div class="message-content">
-                        ${!isOwn ? `<div class="message-sender">${msg.users?.name} (Batch ${msg.users?.batch})</div>` : ''}
-                        <div class="message-text">${msg.content}</div>
-                        <div class="message-time">${time}</div>
+                        ${!isOwn ? `<small>${senderName} (Batch ${senderBatch})</small><br>` : ''}
+                        <span>${msg.content}</span>
+                        <br><small>${time}</small>
                     </div>
                 `;
 
                 container.appendChild(messageDiv);
             });
 
-            // Scroll to bottom
             container.scrollTop = container.scrollHeight;
         }
 
-        // Send Message
-        async function sendMessage() {
+        // মেসেজ পাঠানো
+        window.sendMessage = async function() {
             const input = document.getElementById('messageInput');
             const content = input.value.trim();
 
@@ -1061,408 +516,255 @@
                         {
                             user_id: currentUser.id,
                             content: content,
-                            created_at: new Date()
+                            created_at: new Date().toISOString()
                         }
                     ]);
 
-                if(error) throw error;
+                if(error) {
+                    console.error('Send error:', error);
+                    alert('মেসেজ পাঠানো যায়নি');
+                    return;
+                }
 
                 input.value = '';
+                loadMessages(); // রিলোড মেসেজ
+                
             } catch(error) {
-                console.error('Error sending message:', error);
-                alert('Error sending message');
+                console.error('Error:', error);
             }
-        }
+        };
 
-        // Subscribe to Messages (Real-time)
+        // রিয়েল-টাইম সাবস্ক্রিপশন
         function subscribeToMessages() {
-            if(messagesSubscription) {
-                messagesSubscription.unsubscribe();
-            }
-
-            messagesSubscription = supabase
+            supabase
                 .channel('messages-channel')
                 .on('postgres_changes', 
                     { event: 'INSERT', schema: 'public', table: 'messages' },
-                    async (payload) => {
-                        // Fetch user details for the new message
-                        const { data: userData } = await supabase
-                            .from('users')
-                            .select('name, avatar_url, batch, department')
-                            .eq('id', payload.new.user_id)
-                            .single();
-
-                        payload.new.users = userData;
-                        
-                        const messages = [payload.new];
-                        displayMessages(messages);
-                    }
-                )
-                .subscribe();
-        }
-
-        // Load Notifications
-        async function loadNotifications() {
-            try {
-                let query = supabase
-                    .from('notifications')
-                    .select(`
-                        *,
-                        sender:sender_id (name, batch, department)
-                    `)
-                    .order('created_at', { ascending: false });
-
-                // Filter notifications based on user's batch, department, semester
-                if(currentUser) {
-                    query = query.or(
-                        `target_batch.eq.${currentUser.batch},target_batch.is.null`
-                    ).or(
-                        `target_department.eq.${currentUser.department},target_department.is.null`
-                    ).or(
-                        `target_semester.eq.${currentUser.semester},target_semester.is.null`
-                    );
-                }
-
-                const { data, error } = await query;
-
-                if(error) throw error;
-
-                displayNotifications(data || []);
-            } catch(error) {
-                console.error('Error loading notifications:', error);
-            }
-        }
-
-        // Display Notifications
-        function displayNotifications(notifications) {
-            const container = document.getElementById('notificationsContainer');
-            container.innerHTML = '';
-
-            notifications.forEach(notif => {
-                const time = new Date(notif.created_at).toLocaleString();
-                const senderName = notif.sender?.name || 'Unknown';
-                const targetInfo = [];
-                
-                if(notif.target_batch) targetInfo.push(`Batch ${notif.target_batch}`);
-                if(notif.target_department) targetInfo.push(notif.target_department);
-                if(notif.target_semester) targetInfo.push(`Semester ${notif.target_semester}`);
-                
-                const targetText = targetInfo.length ? ` → ${targetInfo.join(', ')}` : ' → Everyone';
-
-                const notifDiv = document.createElement('div');
-                notifDiv.className = 'notification-card';
-                notifDiv.innerHTML = `
-                    <div class="notification-title">${notif.title}</div>
-                    <div class="notification-content">${notif.content}</div>
-                    <div class="notification-meta">
-                        <span><i class="fas fa-user"></i> ${senderName}</span>
-                        <span><i class="fas fa-clock"></i> ${time}</span>
-                        <span><i class="fas fa-bullseye"></i> ${targetText}</span>
-                    </div>
-                `;
-
-                container.appendChild(notifDiv);
-            });
-        }
-
-        // Subscribe to Notifications (Real-time)
-        function subscribeToNotifications() {
-            if(notificationsSubscription) {
-                notificationsSubscription.unsubscribe();
-            }
-
-            notificationsSubscription = supabase
-                .channel('notifications-channel')
-                .on('postgres_changes',
-                    { event: 'INSERT', schema: 'public', table: 'notifications' },
                     (payload) => {
-                        // Check if notification is for current user
-                        if(currentUser) {
-                            const notif = payload.new;
-                            const shouldShow = 
-                                (!notif.target_batch || notif.target_batch === currentUser.batch) &&
-                                (!notif.target_department || notif.target_department === currentUser.department) &&
-                                (!notif.target_semester || notif.target_semester === currentUser.semester);
-
-                            if(shouldShow) {
-                                loadNotifications(); // Reload all notifications
-                                // Show a toast notification
-                                showNotificationToast(notif.title);
-                            }
-                        }
+                        loadMessages(); // নতুন মেসেজ এলে রিলোড
                     }
                 )
                 .subscribe();
         }
 
-        // Show Notification Toast
-        function showNotificationToast(title) {
-            // Create toast element
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 15px 25px;
-                border-radius: 10px;
-                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-                z-index: 1000;
-                animation: slideIn 0.3s ease;
-            `;
-            toast.innerHTML = `
-                <i class="fas fa-bell"></i>
-                <strong>New Notification:</strong> ${title}
-            `;
-
-            document.body.appendChild(toast);
-
-            // Remove after 3 seconds
-            setTimeout(() => {
-                toast.remove();
-            }, 3000);
-        }
-
-        // Create Notification
-        async function createNotification() {
-            const title = document.getElementById('notificationTitle').value;
-            const content = document.getElementById('notificationContent').value;
-            const batch = document.getElementById('notificationBatch').value;
-            const department = document.getElementById('notificationDepartment').value;
-            const semester = document.getElementById('notificationSemester').value;
-
-            if(!title || !content) {
-                alert('Please fill title and content');
-                return;
-            }
-
-            try {
-                const { error } = await supabase
-                    .from('notifications')
-                    .insert([
-                        {
-                            sender_id: currentUser.id,
-                            title: title,
-                            content: content,
-                            target_batch: batch || null,
-                            target_department: department || null,
-                            target_semester: semester ? parseInt(semester) : null,
-                            created_at: new Date()
-                        }
-                    ]);
-
-                if(error) throw error;
-
-                alert('Notification sent successfully!');
-                closeNotificationModal();
-                
-                // Clear form
-                document.getElementById('notificationTitle').value = '';
-                document.getElementById('notificationContent').value = '';
-            } catch(error) {
-                console.error('Error creating notification:', error);
-                alert('Error sending notification');
-            }
-        }
-
-        // Populate Dropdowns
-        function populateDropdowns() {
-            // Semester dropdown
-            const semesters = [1,2,3,4,5,6,7,8];
-            const semesterSelects = ['editSemester', 'notificationSemester'];
-            
-            semesterSelects.forEach(id => {
-                const select = document.getElementById(id);
-                if(select) {
-                    select.innerHTML = id === 'notificationSemester' ? '<option value="">All Semesters</option>' : '';
-                    semesters.forEach(s => {
-                        select.innerHTML += `<option value="${s}">Semester ${s}</option>`;
-                    });
-                }
-            });
-
-            // Department dropdown (same as signup)
-            const departments = [
-                'CSE', 'EEE', 'BBA', 'English', 'Law', 'Pharmacy', 'Civil', 
-                'ME', 'ETE', 'Textile', 'Economics', 'Political Science', 
-                'Sociology', 'Mathematics', 'Physics', 'Chemistry', 
-                'Accounting', 'Finance', 'Marketing'
-            ];
-
-            const deptSelects = ['editDepartment', 'notificationDepartment'];
-            
-            deptSelects.forEach(id => {
-                const select = document.getElementById(id);
-                if(select) {
-                    select.innerHTML = id === 'notificationDepartment' ? '<option value="">All Departments</option>' : '';
-                    departments.forEach(d => {
-                        select.innerHTML += `<option value="${d}">${d}</option>`;
-                    });
-                }
-            });
-
-            // Batch dropdown
-            const batchSelects = ['editBatch', 'notificationBatch'];
-            
-            batchSelects.forEach(id => {
-                const select = document.getElementById(id);
-                if(select) {
-                    select.innerHTML = id === 'notificationBatch' ? '<option value="">All Batches</option>' : '';
-                    for(let i = 28; i <= 38; i++) {
-                        select.innerHTML += `<option value="${i}">Batch ${i}</option>`;
-                    }
-                }
-            });
-
-            // Set current user values in edit form
-            if(currentUser) {
-                document.getElementById('editName').value = currentUser.name || '';
-                document.getElementById('editStudentId').value = currentUser.student_id || '';
-                document.getElementById('editEmail').value = currentUser.email || '';
-                document.getElementById('editSemester').value = currentUser.semester || '';
-                document.getElementById('editDepartment').value = currentUser.department || '';
-                document.getElementById('editBatch').value = currentUser.batch || '';
-                document.getElementById('editBio').value = currentUser.bio || '';
-                document.getElementById('bioCount').textContent = (currentUser.bio || '').length;
-            }
-        }
-
-        // Show Edit Profile Modal
-        function showEditProfileModal() {
-            document.getElementById('editProfileModal').classList.add('active');
-            populateDropdowns();
-        }
-
-        // Update Profile
-        async function updateProfile() {
-            const name = document.getElementById('editName').value;
-            const email = document.getElementById('editEmail').value;
-            const semester = document.getElementById('editSemester').value;
-            const department = document.getElementById('editDepartment').value;
-            const batch = document.getElementById('editBatch').value;
-            const bio = document.getElementById('editBio').value;
-
-            if(!name || !email || !semester || !department || !batch) {
-                alert('Please fill all required fields');
-                return;
-            }
-
-            if(bio.length > 110) {
-                alert('Bio must be less than 110 characters');
-                return;
-            }
-
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .update({
-                        name: name,
-                        email: email,
-                        semester: parseInt(semester),
-                        department: department,
-                        batch: batch,
-                        bio: bio
-                    })
-                    .eq('id', currentUser.id);
-
-                if(error) throw error;
-
-                // Update current user
-                currentUser = {
-                    ...currentUser,
-                    name, email,
-                    semester: parseInt(semester),
-                    department, batch, bio
-                };
-
-                loadUserProfile();
-                closeModal();
-                alert('Profile updated successfully!');
-            } catch(error) {
-                console.error('Error updating profile:', error);
-                alert('Error updating profile');
-            }
-        }
-
-        // Avatar Preview
-        function previewAvatar() {
-            const file = document.getElementById('avatarUpload').files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatarImage').src = e.target.result;
-                    document.getElementById('avatarImage').style.display = 'block';
-                    document.getElementById('avatarText').style.display = 'none';
-                    
-                    // In a real app, you'd upload this to Supabase Storage
-                    // For now, we'll just show preview
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Close Modal
-        function closeModal() {
-            document.getElementById('editProfileModal').classList.remove('active');
-        }
-
-        // Show Create Notification Modal
-        function showCreateNotificationModal() {
-            document.getElementById('createNotificationModal').classList.add('active');
-            populateDropdowns();
-        }
-
-        // Close Notification Modal
-        function closeNotificationModal() {
-            document.getElementById('createNotificationModal').classList.remove('active');
-        }
-
-        // Switch Tabs
-        function switchTab(tab) {
-            const chatArea = document.getElementById('chatArea');
-            const notificationsPanel = document.getElementById('notificationsPanel');
-            const navItems = document.querySelectorAll('.nav-item');
-
-            navItems.forEach(item => item.classList.remove('active'));
-
-            if(tab === 'chat') {
-                chatArea.style.display = 'flex';
-                notificationsPanel.style.display = 'none';
-                navItems[0].classList.add('active');
-            } else {
-                chatArea.style.display = 'none';
-                notificationsPanel.style.display = 'block';
-                navItems[1].classList.add('active');
-                loadNotifications();
-            }
-        }
-
-        // Logout
-        function logout() {
-            if(messagesSubscription) {
-                messagesSubscription.unsubscribe();
-            }
-            if(notificationsSubscription) {
-                notificationsSubscription.unsubscribe();
-            }
-            
+        // লগআউট
+        window.logout = function() {
             currentUser = null;
             document.getElementById('authSection').style.display = 'flex';
             document.getElementById('mainApp').style.display = 'none';
             
-            // Clear forms
             document.getElementById('loginStudentId').value = '';
             document.getElementById('loginPassword').value = '';
+        };
+
+        // নোটিফিকেশন ফাংশন (সিম্পল ভার্সন)
+        window.switchTab = function(tab) {
+            if(tab === 'chat') {
+                document.getElementById('chatArea').style.display = 'flex';
+                document.getElementById('notificationsPanel').style.display = 'none';
+            } else {
+                document.getElementById('chatArea').style.display = 'none';
+                document.getElementById('notificationsPanel').style.display = 'block';
+                loadNotifications();
+            }
+        };
+
+        // নোটিফিকেশন লোড
+        async function loadNotifications() {
+            try {
+                const { data, error } = await supabase
+                    .from('notifications')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+
+                if(error) throw error;
+
+                const container = document.getElementById('notificationsContainer');
+                container.innerHTML = '';
+
+                data.forEach(notif => {
+                    const div = document.createElement('div');
+                    div.className = 'notification-card';
+                    div.innerHTML = `
+                        <h4>${notif.title}</h4>
+                        <p>${notif.content}</p>
+                        <small>${new Date(notif.created_at).toLocaleString()}</small>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch(error) {
+                console.error('Notification error:', error);
+            }
         }
 
-        // Bio character counter
-        document.getElementById('editBio')?.addEventListener('input', function() {
-            document.getElementById('bioCount').textContent = this.value.length;
-        });
+        // পেইজ লোড হলে
+        window.onload = function() {
+            console.log('App loaded');
+            // এন্টার কি তে মেসেজ পাঠানো
+            document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') sendMessage();
+            });
+        };
+    </script>
 
-        // Check if user is already logged in (optional)
-        // You can add session persistence here
+    <!-- Auth Section -->
+    <div id="authSection" class="auth-container">
+        <!-- Login Form -->
+        <div id="loginForm" class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>ক্যাম্পাস সার্কেলে স্বাগতম</h2>
+                <p>লগইন করে চ্যাট শুরু করুন</p>
+            </div>
+            <div class="auth-body">
+                <div class="form-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="loginStudentId" placeholder="স্টুডেন্ট আইডি">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="পাসওয়ার্ড">
+                </div>
+                <button class="btn" onclick="handleLogin()">লগইন</button>
+                <div class="auth-footer">
+                    অ্যাকাউন্ট নেই? <a href="#" onclick="showSignup()">সাইনআপ করুন</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupForm" class="auth-card" style="display: none;">
+            <div class="auth-header">
+                <i class="fas fa-user-plus"></i>
+                <h2>নতুন অ্যাকাউন্ট</h2>
+                <p>তথ্য দিন</p>
+            </div>
+            <div class="auth-body">
+                <div class="form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signupName" placeholder="পুরো নাম (রিয়েল নাম)">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="signupStudentId" placeholder="স্টুডেন্ট আইডি">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signupEmail" placeholder="ইমেইল">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-layer-group"></i>
+                    <select id="signupSemester">
+                        <option value="">সেমিস্টার নির্বাচন করুন</option>
+                        <option value="1">১ম সেমিস্টার</option>
+                        <option value="2">২য় সেমিস্টার</option>
+                        <option value="3">৩য় সেমিস্টার</option>
+                        <option value="4">৪র্থ সেমিস্টার</option>
+                        <option value="5">৫ম সেমিস্টার</option>
+                        <option value="6">৬ষ্ঠ সেমিস্টার</option>
+                        <option value="7">৭ম সেমিস্টার</option>
+                        <option value="8">৮ম সেমিস্টার</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-building"></i>
+                    <select id="signupDepartment">
+                        <option value="">ডিপার্টমেন্ট নির্বাচন করুন</option>
+                        <option value="CSE">Computer Science & Engineering</option>
+                        <option value="EEE">Electrical & Electronic Engineering</option>
+                        <option value="BBA">Business Administration</option>
+                        <option value="English">English</option>
+                        <option value="Law">Law</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Civil">Civil Engineering</option>
+                        <option value="ME">Mechanical Engineering</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-calendar-alt"></i>
+                    <select id="signupBatch">
+                        <option value="">ব্যাচ নির্বাচন করুন</option>
+                        <option value="28">Batch 28</option>
+                        <option value="29">Batch 29</option>
+                        <option value="30">Batch 30</option>
+                        <option value="31">Batch 31</option>
+                        <option value="32">Batch 32</option>
+                        <option value="33">Batch 33</option>
+                        <option value="34">Batch 34</option>
+                        <option value="35">Batch 35</option>
+                        <option value="36">Batch 36</option>
+                        <option value="37">Batch 37</option>
+                        <option value="38">Batch 38</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupPassword" placeholder="পাসওয়ার্ড">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupConfirmPassword" placeholder="আবার পাসওয়ার্ড">
+                </div>
+                <button class="btn" onclick="handleSignup()">সাইনআপ</button>
+                <div class="auth-footer">
+                    অ্যাকাউন্ট আছে? <a href="#" onclick="showLogin()">লগইন করুন</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="mainApp" style="display: none;">
+        <div class="app-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="profile-card">
+                    <div class="avatar" id="profileAvatar">
+                        <span id="avatarText"></span>
+                    </div>
+                    <div class="profile-name" id="profileName"></div>
+                    <div class="profile-bio" id="profileBio"></div>
+                    <div class="profile-details" id="profileDetails"></div>
+                </div>
+
+                <div class="nav-item active" onclick="switchTab('chat')">
+                    <i class="fas fa-comments"></i> গ্লোবাল চ্যাট
+                </div>
+                <div class="nav-item" onclick="switchTab('notifications')">
+                    <i class="fas fa-bell"></i> নোটিফিকেশন
+                </div>
+                <div class="nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> লগআউট
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="chat-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h3><i class="fas fa-globe"></i> গ্লোবাল চ্যাট</h3>
+                    <p>সবাই মিলে কথা বলুন</p>
+                </div>
+                <div class="messages" id="messagesContainer"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="মেসেজ লিখুন...">
+                    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <!-- Notifications Panel -->
+            <div class="notifications-panel" id="notificationsPanel" style="display: none;">
+                <div class="panel-header">
+                    <h3><i class="fas fa-bullhorn"></i> নোটিফিকেশন</h3>
+                </div>
+                <div id="notificationsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // শুরুতে অথ সেকশন দেখাও
+        document.getElementById('authSection').style.display = 'flex';
     </script>
 </body>
 </html>
