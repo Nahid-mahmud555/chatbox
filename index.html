@@ -3,1371 +3,1466 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Circle — Chat</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- ======================================================
-         🔑 SUPABASE KEYS — SHUDHU EI DUI JAIGA CHANGE KOR
-         ====================================================== -->
+    <title>Campus Circle - RealTime Chat Platform</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // ┌─────────────────────────────────────────────────────┐
-        // │  👇 EI LINE E TOR SUPABASE PROJECT URL BOSAI DE     │
-        const SUPABASE_URL = 'https://htozsbirvogyrbuosujg.supabase.co';
-        // └─────────────────────────────────────────────────────┘
-
-        // ┌─────────────────────────────────────────────────────┐
-        // │  👇 EI LINE E TOR SUPABASE ANON KEY BOSAI DE        │
-        const SUPABASE_ANON_KEY = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
-        // └─────────────────────────────────────────────────────┘
-
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    </script>
-
+    
     <style>
-        :root {
-            --primary: #7C3AED;
-            --primary-light: #A78BFA;
-            --secondary: #F472B6;
-            --accent: #22D3EE;
-            --accent2: #34D399;
-            --bg: #0A0A0F;
-            --bg2: #111118;
-            --bg3: #16161f;
-            --surface: rgba(255,255,255,0.04);
-            --surface2: rgba(255,255,255,0.07);
-            --border: rgba(255,255,255,0.07);
-            --border2: rgba(124,58,237,0.25);
-            --text: #F1F0FF;
-            --text2: #A09BBF;
-            --text3: #5E5A7A;
-            --success: #34D399;
-            --error: #F87171;
-            --radius: 14px;
-            --radius2: 22px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            overflow: hidden;
+            color: #333;
         }
 
-        /* Ambient orbs */
-        body::before {
-            content:''; position:fixed; top:-15%; right:-10%;
-            width:500px; height:500px;
-            background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
-            pointer-events:none; z-index:0;
-        }
-        body::after {
-            content:''; position:fixed; bottom:-15%; left:-10%;
-            width:400px; height:400px;
-            background: radial-gradient(circle, rgba(34,211,238,0.07) 0%, transparent 70%);
-            pointer-events:none; z-index:0;
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        /* ===== TOAST ===== */
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px);
-            background: var(--bg3); border: 1px solid var(--border2);
-            padding: 12px 24px; border-radius: 50px;
-            font-size: 0.88rem; font-weight: 600;
-            z-index: 99999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
-            display: flex; align-items: center; gap: 8px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        /* Auth Container */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
-        #toast.show { transform: translateX(-50%) translateY(0); }
-        #toast.success { border-color: rgba(52,211,153,0.4); color: var(--accent2); }
-        #toast.error { border-color: rgba(248,113,113,0.4); color: var(--error); }
 
-        /* ===== OVERLAY PAGES ===== */
-        .page {
-            position: fixed; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 100; padding: 20px;
-            background: var(--bg);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        .page.hidden { opacity:0; pointer-events:none; transform: scale(0.97); }
-
-        /* ===== AUTH CARD ===== */
         .auth-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: var(--radius2);
-            padding: 2.5rem 2.2rem;
-            width: 100%; max-width: 440px;
-            backdrop-filter: blur(30px);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-            animation: card-pop 0.5s cubic-bezier(0.16,1,0.3,1) both;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
         }
 
-        @keyframes card-pop {
-            from { opacity:0; transform: translateY(30px) scale(0.96); }
-            to   { opacity:1; transform: translateY(0) scale(1); }
+        .auth-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
         }
 
-        .auth-logo {
-            display: flex; align-items: center; gap: 10px;
-            justify-content: center; margin-bottom: 2rem;
-        }
-        .auth-logo i { font-size: 1.6rem; color: var(--primary-light); filter: drop-shadow(0 0 10px var(--primary)); }
-        .auth-logo span { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
-        .auth-logo em { font-style: normal; color: var(--primary-light); }
-
-        .auth-title { font-family: 'Nunito', sans-serif; font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 0.3rem; }
-        .auth-sub { text-align: center; color: var(--text2); font-size: 0.85rem; margin-bottom: 1.8rem; }
-
-        /* Tabs */
-        .auth-tabs {
-            display: flex; background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border); border-radius: 50px;
-            padding: 4px; margin-bottom: 1.8rem; gap: 4px;
-        }
-        .auth-tab {
-            flex: 1; padding: 9px; border-radius: 50px; border: none;
-            background: transparent; color: var(--text2);
-            font-family: 'Nunito', sans-serif; font-size: 0.88rem;
-            font-weight: 700; cursor: pointer; transition: all 0.25s ease;
-        }
-        .auth-tab.active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white; box-shadow: 0 4px 15px rgba(124,58,237,0.35);
+        .auth-header i {
+            font-size: 50px;
+            margin-bottom: 15px;
         }
 
-        /* Form */
-        .form-group { margin-bottom: 1.1rem; }
-        .form-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; letter-spacing: 0.3px; text-transform: uppercase; }
-        .form-input {
-            width: 100%; padding: 11px 15px;
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-            border-radius: var(--radius); font-size: 0.92rem;
-            color: var(--text); font-family: 'Outfit', sans-serif;
-            transition: all 0.25s ease;
-        }
-        .form-input:focus { outline: none; border-color: var(--primary); background: rgba(124,58,237,0.07); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
-        .form-input::placeholder { color: var(--text3); }
-        select.form-input option { background: #1a1a2e; }
-
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-
-        .auth-btn {
-            width: 100%; padding: 13px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white; border: none; border-radius: var(--radius);
-            font-size: 0.95rem; font-weight: 800;
-            font-family: 'Nunito', sans-serif; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            box-shadow: 0 4px 20px rgba(124,58,237,0.35);
-            margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
-        .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .divider { display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0; }
-        .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
-        .divider span { font-size: 0.75rem; color: var(--text3); }
-
-        /* ===== PROFILE PAGE ===== */
-        .profile-page {
-            position: fixed; inset: 0; z-index: 90;
-            background: var(--bg);
-            display: flex; flex-direction: column;
-            opacity: 1; transition: all 0.4s ease;
-        }
-        .profile-page.hidden { opacity:0; pointer-events:none; transform: translateX(100%); }
-
-        .profile-header-bar {
-            display: flex; align-items: center; gap: 1rem;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
-        }
-        .back-btn {
-            background: rgba(255,255,255,0.06); border: 1px solid var(--border);
-            color: var(--text2); width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
-        }
-        .back-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
-        .profile-header-bar h3 { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; }
-
-        .profile-body {
-            flex: 1; overflow-y: auto; padding: 2rem 1.5rem;
-            max-width: 600px; margin: 0 auto; width: 100%;
+        .auth-header h2 {
+            font-size: 28px;
+            margin-bottom: 10px;
         }
 
-        .profile-avatar-section {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 1rem; margin-bottom: 2rem;
+        .auth-body {
+            padding: 40px;
         }
 
-        .profile-avatar-wrap {
-            position: relative; width: 100px; height: 100px;
-        }
-        .profile-avatar-wrap img {
-            width: 100%; height: 100%; border-radius: 50%;
-            object-fit: cover; border: 3px solid var(--primary);
-            box-shadow: 0 0 25px rgba(124,58,237,0.4);
-        }
-        .avatar-edit-btn {
-            position: absolute; bottom: 2px; right: 2px;
-            width: 30px; height: 30px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border: 2px solid var(--bg); color: white;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 0.7rem; transition: transform 0.2s;
-        }
-        .avatar-edit-btn:hover { transform: scale(1.1); }
-        #avatarFileInput { display: none; }
-
-        .profile-name { font-family: 'Nunito', sans-serif; font-size: 1.3rem; font-weight: 900; }
-        .profile-dept { color: var(--text2); font-size: 0.85rem; }
-
-        .profile-stats-row {
-            display: flex; gap: 1.5rem; justify-content: center;
-            padding: 1.2rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
-            margin-bottom: 1.5rem;
-        }
-        .pstat { text-align: center; }
-        .pstat strong { display: block; font-family: 'Nunito', sans-serif; font-size: 1.3rem; font-weight: 900; color: var(--primary-light); }
-        .pstat span { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
-
-        .profile-info-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
-        }
-        .info-chip {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            border-radius: var(--radius); padding: 0.9rem 1rem;
-        }
-        .info-chip label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 700; display: block; margin-bottom: 0.3rem; }
-        .info-chip span { font-size: 0.9rem; font-weight: 600; color: var(--text); }
-
-        .bio-section { margin-bottom: 1.5rem; }
-        .bio-section label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 700; display: block; margin-bottom: 0.6rem; }
-        .bio-textarea {
-            width: 100%; padding: 12px 15px;
-            background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-            border-radius: var(--radius); color: var(--text);
-            font-family: 'Outfit', sans-serif; font-size: 0.9rem;
-            resize: none; line-height: 1.6; transition: all 0.25s;
-        }
-        .bio-textarea:focus { outline: none; border-color: var(--primary); background: rgba(124,58,237,0.06); }
-        .bio-counter { font-size: 0.72rem; color: var(--text3); text-align: right; margin-top: 0.3rem; }
-        .bio-counter.warn { color: var(--error); }
-
-        .save-bio-btn {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white; border: none; padding: 10px 24px; border-radius: 50px;
-            font-size: 0.85rem; font-weight: 800; font-family: 'Nunito', sans-serif;
-            cursor: pointer; transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(124,58,237,0.3);
-        }
-        .save-bio-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
-
-        /* ===== MAIN CHAT LAYOUT ===== */
-        #chatApp {
-            display: flex; height: 100vh;
-            position: relative; z-index: 1;
-        }
-        #chatApp.hidden { display: none; }
-
-        /* Sidebar */
-        .chat-sidebar {
-            width: 72px; background: rgba(10,10,15,0.95);
-            border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center;
-            padding: 1rem 0; gap: 0.3rem;
-            backdrop-filter: blur(20px);
-            z-index: 10;
-        }
-
-        .sidebar-logo {
-            width: 42px; height: 42px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; color: white; margin-bottom: 1rem;
-            box-shadow: 0 4px 15px rgba(124,58,237,0.4);
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .sidebar-divider { width: 36px; height: 1px; background: var(--border); margin: 0.5rem 0; }
-
-        .sidebar-btn {
-            width: 44px; height: 44px; border-radius: 14px;
-            background: transparent; border: none;
-            color: var(--text3); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; transition: all 0.25s ease;
+        .form-group {
+            margin-bottom: 20px;
             position: relative;
         }
-        .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
-        .sidebar-btn.active { background: rgba(124,58,237,0.15); color: var(--primary-light); }
 
-        .sidebar-btn .tooltip {
-            position: absolute; left: calc(100% + 12px);
-            background: var(--bg3); border: 1px solid var(--border);
-            padding: 5px 10px; border-radius: 8px;
-            font-size: 0.75rem; white-space: nowrap; color: var(--text);
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.2s; font-family: 'Outfit', sans-serif;
-        }
-        .sidebar-btn:hover .tooltip { opacity: 1; }
-
-        .sidebar-spacer { flex: 1; }
-
-        .sidebar-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            border: 2px solid var(--primary); object-fit: cover;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .sidebar-avatar:hover { box-shadow: 0 0 15px rgba(124,58,237,0.5); }
-
-        /* Chat Main */
-        .chat-main {
-            flex: 1; display: flex; flex-direction: column;
-            min-width: 0;
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
         }
 
-        /* Chat Header */
-        .chat-topbar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 0 1.5rem; height: 62px;
-            border-bottom: 1px solid var(--border);
-            background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
-            flex-shrink: 0;
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
         }
 
-        .chat-topbar-left { display: flex; align-items: center; gap: 0.8rem; }
-
-        .room-icon {
-            width: 38px; height: 38px; border-radius: 12px;
-            background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(167,139,250,0.1));
-            border: 1px solid rgba(124,58,237,0.2);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
-        .room-info h4 { font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800; }
-        .room-info span { font-size: 0.72rem; color: var(--accent2); display: flex; align-items: center; gap: 4px; }
-        .room-info span::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--accent2); animation: pulse-dot 2s ease infinite; }
-        @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-
-        .online-count {
-            display: flex; align-items: center; gap: 6px;
-            background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.15);
-            padding: 5px 12px; border-radius: 50px;
-            font-size: 0.75rem; color: var(--accent2); font-weight: 600;
+        .form-group textarea {
+            height: 100px;
+            resize: none;
         }
 
-        /* Messages area */
-        .chat-messages {
-            flex: 1; overflow-y: auto;
-            padding: 1.5rem;
-            display: flex; flex-direction: column; gap: 0.15rem;
-            scroll-behavior: smooth;
-        }
-
-        .chat-messages::-webkit-scrollbar { width: 4px; }
-        .chat-messages::-webkit-scrollbar-track { background: transparent; }
-        .chat-messages::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 2px; }
-
-        /* Date separator */
-        .date-sep {
-            display: flex; align-items: center; gap: 1rem;
-            margin: 1rem 0; color: var(--text3); font-size: 0.72rem;
-        }
-        .date-sep::before, .date-sep::after { content:''; flex:1; height:1px; background: var(--border); }
-
-        /* Message */
-        .msg {
-            display: flex; gap: 0.8rem; padding: 0.2rem 0.5rem;
-            border-radius: 12px; transition: background 0.2s;
-            animation: msg-in 0.3s cubic-bezier(0.16,1,0.3,1) both;
-        }
-        .msg:hover { background: rgba(255,255,255,0.025); }
-
-        @keyframes msg-in {
-            from { opacity:0; transform: translateY(8px); }
-            to   { opacity:1; transform: translateY(0); }
-        }
-
-        .msg.own { flex-direction: row-reverse; }
-
-        .msg-avatar {
-            width: 36px; height: 36px; border-radius: 50%;
-            object-fit: cover; border: 2px solid rgba(124,58,237,0.2);
-            flex-shrink: 0; cursor: pointer; transition: border-color 0.2s;
-            align-self: flex-end; margin-bottom: 2px;
-        }
-        .msg-avatar:hover { border-color: var(--primary-light); }
-
-        .msg-body { max-width: 65%; display: flex; flex-direction: column; gap: 2px; }
-        .msg.own .msg-body { align-items: flex-end; }
-
-        .msg-meta {
-            display: flex; align-items: center; gap: 0.5rem;
-            font-size: 0.72rem; color: var(--text3); padding: 0 4px;
-        }
-        .msg.own .msg-meta { flex-direction: row-reverse; }
-
-        .msg-name { font-weight: 700; color: var(--primary-light); font-size: 0.78rem; }
-        .msg.own .msg-name { color: var(--secondary); }
-
-        .msg-bubble {
-            padding: 10px 14px; border-radius: 18px;
-            font-size: 0.9rem; line-height: 1.5;
-            word-break: break-word;
-        }
-
-        .msg-bubble.other {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.07);
-            border-bottom-left-radius: 4px;
-            color: var(--text);
-        }
-
-        .msg-bubble.own {
-            background: linear-gradient(135deg, var(--primary), #9333EA);
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-bottom-right-radius: 4px;
-            box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            width: 100%;
+            font-family: 'Poppins', sans-serif;
         }
 
-        /* Typing indicator */
-        .typing-indicator {
-            display: flex; align-items: center; gap: 0.6rem;
-            padding: 0.5rem 1.5rem; color: var(--text3); font-size: 0.78rem;
-            min-height: 28px; flex-shrink: 0;
-        }
-        .typing-dots { display: flex; gap: 3px; }
-        .typing-dots span {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: var(--text3); animation: tdot 1.4s ease infinite;
-        }
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes tdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-
-        /* Input area */
-        .chat-input-area {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--border);
-            background: rgba(10,10,15,0.9);
-            backdrop-filter: blur(20px);
-            flex-shrink: 0;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
         }
 
-        .chat-input-wrap {
-            display: flex; align-items: center; gap: 0.7rem;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border); border-radius: 50px;
-            padding: 8px 8px 8px 18px;
-            transition: border-color 0.25s, box-shadow 0.25s;
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
         }
 
-        .chat-input-wrap:focus-within {
-            border-color: rgba(124,58,237,0.4);
-            box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+        .btn-outline:hover {
+            background: #667eea;
+            color: white;
         }
 
-        #msgInput {
-            flex: 1; background: transparent; border: none;
-            color: var(--text); font-family: 'Outfit', sans-serif;
-            font-size: 0.92rem; outline: none;
-        }
-        #msgInput::placeholder { color: var(--text3); }
-
-        .send-btn {
-            width: 40px; height: 40px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border: none; color: white; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem; flex-shrink: 0;
-            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            box-shadow: 0 4px 12px rgba(124,58,237,0.4);
-        }
-        .send-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(124,58,237,0.55); }
-        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        /* Rooms panel */
-        .rooms-panel {
-            width: 260px; background: var(--bg2);
-            border-right: 1px solid var(--border);
-            display: flex; flex-direction: column;
-            transition: all 0.3s ease;
+        .auth-footer {
+            text-align: center;
+            margin-top: 20px;
         }
 
-        .rooms-header {
-            padding: 1.2rem; border-bottom: 1px solid var(--border);
-        }
-        .rooms-header h4 { font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 0.8rem; }
-
-        .room-item {
-            display: flex; align-items: center; gap: 0.7rem;
-            padding: 0.7rem 1rem; border-radius: var(--radius);
-            cursor: pointer; transition: all 0.2s ease; margin: 0 0.5rem;
-        }
-        .room-item:hover { background: var(--surface2); }
-        .room-item.active { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
-
-        .room-badge {
-            width: 34px; height: 34px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; flex-shrink: 0;
+        .auth-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
         }
 
-        .room-item-info h5 { font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; }
-        .room-item-info span { font-size: 0.72rem; color: var(--text3); }
-
-        .unread-badge {
-            margin-left: auto; background: var(--primary);
-            color: white; font-size: 0.65rem; font-weight: 800;
-            width: 18px; height: 18px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+        /* Main App Layout */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: 100vh;
+            background: #f5f5f5;
         }
 
-        /* Members panel */
-        .members-panel {
-            width: 220px; background: var(--bg2);
-            border-left: 1px solid var(--border);
-            padding: 1rem;
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
             overflow-y: auto;
         }
-        .members-panel h4 { font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 1rem; }
 
-        .member-item {
-            display: flex; align-items: center; gap: 0.7rem;
-            padding: 0.5rem; border-radius: 10px; cursor: pointer;
-            transition: background 0.2s; margin-bottom: 0.3rem;
+        .profile-card {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 20px;
         }
-        .member-item:hover { background: var(--surface); }
 
-        .member-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(124,58,237,0.2); }
-        .member-item-info h5 { font-size: 0.82rem; font-weight: 600; }
-        .member-item-info span { font-size: 0.68rem; color: var(--text3); }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 40px;
+            font-weight: 600;
+            border: 4px solid white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
 
-        .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); margin-left: auto; flex-shrink: 0; box-shadow: 0 0 6px var(--accent2); }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
 
-        /* Loading spinner */
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-bio {
+            font-size: 12px;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .profile-details {
+            text-align: left;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .profile-details p {
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .profile-details i {
+            width: 20px;
+            color: #667eea;
+            margin-right: 10px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-item i {
+            width: 20px;
+        }
+
+        /* Chat Area */
+        .chat-area {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            margin: 20px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .chat-header h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 70%;
+        }
+
+        .message.own {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .message-content {
+            background: #f0f2f5;
+            padding: 10px 15px;
+            border-radius: 18px;
+            border-top-left-radius: 4px;
+        }
+
+        .message.own .message-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-top-right-radius: 4px;
+            border-top-left-radius: 18px;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .message-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.1);
+        }
+
+        /* Notifications Panel */
+        .notifications-panel {
+            background: white;
+            margin: 20px 20px 20px 0;
+            border-radius: 20px;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .panel-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .notification-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .notification-content {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .notification-meta {
+            font-size: 11px;
+            color: #999;
+            display: flex;
+            gap: 10px;
+        }
+
+        .notification-meta i {
+            margin-right: 3px;
+        }
+
+        .create-notification {
+            margin-top: 20px;
+        }
+
+        .create-notification input,
+        .create-notification textarea,
+        .create-notification select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Profile Edit Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Loading Spinner */
         .spinner {
-            width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2);
-            border-top-color: white; border-radius: 50%;
-            animation: spin 0.6s linear infinite; display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Empty state */
-        .empty-msg {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 0.8rem;
-            color: var(--text3);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-        .empty-msg i { font-size: 2.5rem; opacity: 0.3; }
-        .empty-msg p { font-size: 0.88rem; }
 
         /* Responsive */
         @media (max-width: 900px) {
-            .members-panel { display: none; }
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar,
+            .notifications-panel {
+                display: none;
+            }
         }
-        @media (max-width: 650px) {
-            .rooms-panel { display: none; }
-            .chat-sidebar { width: 56px; }
-            .msg-body { max-width: 80%; }
+
+        /* Password Strength */
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 3px;
+            transition: all 0.3s;
         }
-        @media (max-width: 420px) {
-            .auth-card { padding: 2rem 1.4rem; }
-            .form-row { grid-template-columns: 1fr; }
+
+        .strength-weak {
+            background: #ff4444;
+            width: 33.33%;
+        }
+
+        .strength-medium {
+            background: #ffbb33;
+            width: 66.66%;
+        }
+
+        .strength-strong {
+            background: #00C851;
+            width: 100%;
+        }
+
+        .suggestion {
+            font-size: 12px;
+            color: #ff4444;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
+    <!-- Supabase Config -->
+    <script>
+        // Initialize Supabase - Replace with your credentials
+        const supabaseUrl = 'https://htozsbirvogyrbuosujg.supabase.co';
+        const supabaseKey = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-<!-- ===== TOAST ===== -->
-<div id="toast"><span id="toastMsg"></span></div>
+        // App State
+        let currentUser = null;
+        let messagesSubscription = null;
+        let notificationsSubscription = null;
+    </script>
 
-<!-- ===========================
-     AUTH PAGE
-     =========================== -->
-<div class="page" id="authPage">
-    <div class="auth-card">
-        <div class="auth-logo">
-            <i class="fas fa-seedling"></i>
-            <span>Campus<em>Circle</em></span>
-        </div>
-
-        <div class="auth-tabs">
-            <button class="auth-tab active" id="tabSignin" onclick="switchTab('signin')">Sign In</button>
-            <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
-        </div>
-
-        <!-- SIGN IN FORM -->
-        <div id="signinForm">
-            <div class="form-group">
-                <label class="form-label">Student ID</label>
-                <input class="form-input" id="siStudentId" placeholder="e.g. 2022-CSE-045" type="text">
+    <!-- Auth Section -->
+    <div id="authSection" class="auth-container">
+        <!-- Login Form -->
+        <div id="loginForm" class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>Welcome Back!</h2>
+                <p>Login to continue to Campus Circle</p>
             </div>
-            <div class="form-group">
-                <label class="form-label">Password</label>
-                <input class="form-input" id="siPassword" placeholder="••••••••" type="password">
-            </div>
-            <button class="auth-btn" id="signinBtn" onclick="handleSignIn()">
-                <i class="fas fa-arrow-right-to-bracket"></i> Sign In
-            </button>
-        </div>
-
-        <!-- SIGN UP FORM -->
-        <div id="signupForm" style="display:none;">
-            <div class="form-group">
-                <label class="form-label">Full Name</label>
-                <input class="form-input" id="suName" placeholder="Your name" type="text">
-            </div>
-            <div class="form-row">
+            <div class="auth-body">
                 <div class="form-group">
-                    <label class="form-label">Student ID</label>
-                    <input class="form-input" id="suStudentId" placeholder="2022-CSE-045" type="text">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="loginStudentId" placeholder="Student ID / Batch ID">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Batch</label>
-                    <select class="form-input" id="suBatch">
-                        <option value="">Select</option>
-                        <option>2020</option><option>2021</option>
-                        <option>2022</option><option>2023</option><option>2024</option>
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder="Password">
+                </div>
+                <button class="btn" onclick="handleLogin()">Login</button>
+                <div class="auth-footer">
+                    Don't have an account? <a href="#" onclick="showSignup()">Sign Up</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupForm" class="auth-card" style="display: none;">
+            <div class="auth-header">
+                <i class="fas fa-user-plus"></i>
+                <h2>Join Campus Circle</h2>
+                <p>Create your account</p>
+            </div>
+            <div class="auth-body">
+                <div class="form-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signupName" placeholder="Full Name (Real Name)">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-id-card"></i>
+                    <input type="text" id="signupStudentId" placeholder="Student ID">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signupEmail" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-layer-group"></i>
+                    <select id="signupSemester">
+                        <option value="">Select Semester</option>
+                        <option value="1">1st Semester</option>
+                        <option value="2">2nd Semester</option>
+                        <option value="3">3rd Semester</option>
+                        <option value="4">4th Semester</option>
+                        <option value="5">5th Semester</option>
+                        <option value="6">6th Semester</option>
+                        <option value="7">7th Semester</option>
+                        <option value="8">8th Semester</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <i class="fas fa-building"></i>
+                    <select id="signupDepartment">
+                        <option value="">Select Department</option>
+                        <option value="CSE">Computer Science & Engineering</option>
+                        <option value="EEE">Electrical & Electronic Engineering</option>
+                        <option value="BBA">Business Administration</option>
+                        <option value="English">English</option>
+                        <option value="Law">Law</option>
+                        <option value="Pharmacy">Pharmacy</option>
+                        <option value="Civil">Civil Engineering</option>
+                        <option value="ME">Mechanical Engineering</option>
+                        <option value="ETE">Electronics & Telecommunication</option>
+                        <option value="Textile">Textile Engineering</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Political Science">Political Science</option>
+                        <option value="Sociology">Sociology</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Accounting">Accounting</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Marketing">Marketing</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-calendar-alt"></i>
+                    <select id="signupBatch">
+                        <option value="">Select Batch</option>
+                        <!-- Generate batches 28-38 -->
+                        <script>
+                            for(let i = 28; i <= 38; i++) {
+                                document.write(`<option value="${i}">Batch ${i}</option>`);
+                            }
+                        </script>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupPassword" placeholder="Password" onkeyup="checkPasswordStrength()">
+                    <div id="passwordStrength" class="password-strength"></div>
+                    <div id="passwordSuggestion" class="suggestion"></div>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupConfirmPassword" placeholder="Confirm Password">
+                </div>
+                <button class="btn" onclick="handleSignup()">Sign Up</button>
+                <div class="auth-footer">
+                    Already have an account? <a href="#" onclick="showLogin()">Login</a>
+                </div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Department</label>
-                    <select class="form-input" id="suDept">
-                        <option value="">Select</option>
-                        <option value="cse">CSE</option>
-                        <option value="bba">BBA</option>
-                        <option value="english">English</option>
-                        <option value="law">Law</option>
-                        <option value="economics">Economics</option>
-                        <option value="other">Other</option>
-                    </select>
+        </div>
+    </div>
+
+    <!-- Main App Section (Hidden by default) -->
+    <div id="mainApp" style="display: none;">
+        <div class="app-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="profile-card" id="profileCard">
+                    <div class="avatar" id="profileAvatar">
+                        <span id="avatarText"></span>
+                        <img id="avatarImage" src="" style="display: none;">
+                    </div>
+                    <div class="profile-name" id="profileName"></div>
+                    <div class="profile-bio" id="profileBio"></div>
+                    <button class="btn-outline" style="padding: 8px; font-size: 12px; margin-top: 10px;" onclick="showEditProfileModal()">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                    <div class="profile-details" id="profileDetails"></div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Semester</label>
-                    <select class="form-input" id="suSemester">
-                        <option value="">Select</option>
-                        <option>1st</option><option>2nd</option><option>3rd</option>
-                        <option>4th</option><option>5th</option><option>6th</option>
-                        <option>7th</option><option>8th</option>
-                    </select>
+
+                <div class="nav-item active" onclick="switchTab('chat')">
+                    <i class="fas fa-comments"></i> Global Chat
                 </div>
+                <div class="nav-item" onclick="switchTab('notifications')">
+                    <i class="fas fa-bell"></i> Notifications
+                </div>
+                <div class="nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="chat-header">
+                    <h3><i class="fas fa-globe"></i> Global Chat</h3>
+                    <p>Connect with all students across all departments</p>
+                </div>
+                <div class="messages" id="messagesContainer"></div>
+                <div class="chat-input">
+                    <input type="text" id="messageInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+
+            <!-- Notifications Panel -->
+            <div class="notifications-panel" id="notificationsPanel">
+                <div class="panel-header">
+                    <h3><i class="fas fa-bullhorn"></i> Notifications</h3>
+                    <button class="btn-outline" style="padding: 8px 15px; font-size: 12px;" onclick="showCreateNotificationModal()">
+                        <i class="fas fa-plus"></i> Create
+                    </button>
+                </div>
+                <div id="notificationsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;">Edit Profile</h2>
+            <div class="form-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="editName" placeholder="Full Name">
             </div>
             <div class="form-group">
-                <label class="form-label">Password</label>
-                <input class="form-input" id="suPassword" placeholder="Min 6 characters" type="password">
+                <i class="fas fa-id-card"></i>
+                <input type="text" id="editStudentId" placeholder="Student ID" readonly>
             </div>
-            <button class="auth-btn" id="signupBtn" onclick="handleSignUp()">
-                <i class="fas fa-user-plus"></i> Create Account
-            </button>
-        </div>
-
-        <div class="divider"><span>Campus Circle • VU Students Only</span></div>
-        <p style="text-align:center;font-size:0.75rem;color:var(--text3);">
-            <a href="index.html" style="color:var(--primary-light);text-decoration:none;">← Back to Home</a>
-        </p>
-    </div>
-</div>
-
-<!-- ===========================
-     PROFILE PAGE
-     =========================== -->
-<div class="profile-page hidden" id="profilePage">
-    <div class="profile-header-bar">
-        <button class="back-btn" onclick="closeProfile()"><i class="fas fa-arrow-left"></i></button>
-        <h3>My Profile</h3>
-        <div style="margin-left:auto;display:flex;gap:0.5rem;">
-            <button class="back-btn" onclick="handleSignOut()" title="Sign Out" style="color:var(--error);border-color:rgba(248,113,113,0.2);">
-                <i class="fas fa-right-from-bracket"></i>
-            </button>
-        </div>
-    </div>
-    <div class="profile-body">
-        <!-- Avatar -->
-        <div class="profile-avatar-section">
-            <div class="profile-avatar-wrap">
-                <img id="profileAvatarImg" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="Avatar">
-                <label class="avatar-edit-btn" for="avatarFileInput" title="Change photo">
-                    <i class="fas fa-camera"></i>
-                </label>
-                <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+            <div class="form-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="editEmail" placeholder="Email">
             </div>
-            <div style="text-align:center;">
-                <div class="profile-name" id="profileNameDisplay">—</div>
-                <div class="profile-dept" id="profileDeptDisplay">—</div>
+            <div class="form-group">
+                <i class="fas fa-layer-group"></i>
+                <select id="editSemester"></select>
             </div>
-        </div>
-
-        <!-- Stats -->
-        <div class="profile-stats-row">
-            <div class="pstat"><strong id="pMsgCount">0</strong><span>Messages</span></div>
-            <div class="pstat"><strong id="pBatch">—</strong><span>Batch</span></div>
-            <div class="pstat"><strong id="pSemester">—</strong><span>Semester</span></div>
-        </div>
-
-        <!-- Info chips -->
-        <div class="profile-info-grid">
-            <div class="info-chip"><label>Student ID</label><span id="pStudentId">—</span></div>
-            <div class="info-chip"><label>Department</label><span id="pDept">—</span></div>
-            <div class="info-chip"><label>Batch</label><span id="pBatchChip">—</span></div>
-            <div class="info-chip"><label>Semester</label><span id="pSemChip">—</span></div>
-        </div>
-
-        <!-- Bio -->
-        <div class="bio-section">
-            <label>About Me (max 110 chars)</label>
-            <textarea class="bio-textarea" id="bioInput" rows="3" maxlength="110" placeholder="Write something about yourself..." oninput="updateBioCounter()"></textarea>
-            <div class="bio-counter" id="bioCounter">0 / 110</div>
-            <button class="save-bio-btn" onclick="saveBio()">
-                <i class="fas fa-check"></i> Save Bio
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ===========================
-     MAIN CHAT APP
-     =========================== -->
-<div id="chatApp" class="hidden">
-
-    <!-- Left sidebar icons -->
-    <div class="chat-sidebar">
-        <a href="index.html" class="sidebar-logo" title="Home">
-            <i class="fas fa-seedling"></i>
-        </a>
-
-        <div class="sidebar-divider"></div>
-
-        <button class="sidebar-btn active" id="btnGlobal" onclick="switchRoom('global')" title="">
-            <i class="fas fa-globe"></i>
-            <span class="tooltip">Global Chat</span>
-        </button>
-        <button class="sidebar-btn" id="btnDept" onclick="switchRoom('dept')" title="">
-            <i class="fas fa-building-columns"></i>
-            <span class="tooltip">Dept Chat</span>
-        </button>
-        <button class="sidebar-btn" id="btnBatch" onclick="switchRoom('batch')" title="">
-            <i class="fas fa-users"></i>
-            <span class="tooltip">Batch Chat</span>
-        </button>
-        <button class="sidebar-btn" id="btnHackathon" onclick="switchRoom('hackathon')" title="">
-            <i class="fas fa-trophy"></i>
-            <span class="tooltip">Hackathon</span>
-        </button>
-
-        <div class="sidebar-spacer"></div>
-
-        <button class="sidebar-btn" onclick="openProfile()" title="">
-            <img class="sidebar-avatar" id="sidebarAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="me">
-            <span class="tooltip">My Profile</span>
-        </button>
-    </div>
-
-    <!-- Rooms list panel -->
-    <div class="rooms-panel">
-        <div class="rooms-header">
-            <h4>Channels</h4>
-        </div>
-        <div style="padding:0.5rem 0;">
-            <div class="room-item active" id="room-global" onclick="switchRoom('global')">
-                <div class="room-badge" style="background:rgba(124,58,237,0.15);">🌐</div>
-                <div class="room-item-info"><h5>Global Campus</h5><span>All students</span></div>
+            <div class="form-group">
+                <i class="fas fa-building"></i>
+                <select id="editDepartment"></select>
             </div>
-            <div class="room-item" id="room-dept" onclick="switchRoom('dept')">
-                <div class="room-badge" style="background:rgba(34,211,238,0.12);">🏛️</div>
-                <div class="room-item-info"><h5 id="deptRoomLabel">Department</h5><span>Your dept</span></div>
+            <div class="form-group">
+                <i class="fas fa-calendar-alt"></i>
+                <select id="editBatch"></select>
             </div>
-            <div class="room-item" id="room-batch" onclick="switchRoom('batch')">
-                <div class="room-badge" style="background:rgba(244,114,182,0.12);">👥</div>
-                <div class="room-item-info"><h5 id="batchRoomLabel">Batch</h5><span>Your batch</span></div>
+            <div class="form-group">
+                <i class="fas fa-align-left"></i>
+                <textarea id="editBio" placeholder="Bio (max 110 characters)" maxlength="110"></textarea>
+                <div style="text-align: right; font-size: 12px; color: #666;"><span id="bioCount">0</span>/110</div>
             </div>
-            <div class="room-item" id="room-hackathon" onclick="switchRoom('hackathon')">
-                <div class="room-badge" style="background:rgba(251,191,36,0.12);">🏆</div>
-                <div class="room-item-info"><h5>Hackathon</h5><span>BD Hackathons</span></div>
+            <div class="form-group">
+                <i class="fas fa-camera"></i>
+                <input type="file" id="avatarUpload" accept="image/*" onchange="previewAvatar()">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="updateProfile()">Save Changes</button>
+                <button class="btn-outline" onclick="closeModal()">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Main chat column -->
-    <div class="chat-main">
-        <!-- Top bar -->
-        <div class="chat-topbar">
-            <div class="chat-topbar-left">
-                <div class="room-icon" id="roomIcon">🌐</div>
-                <div class="room-info">
-                    <h4 id="roomTitle">Global Campus</h4>
-                    <span id="roomOnline">Live</span>
-                </div>
+    <!-- Create Notification Modal -->
+    <div id="createNotificationModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px;">Create Notification</h2>
+            <div class="form-group">
+                <i class="fas fa-heading"></i>
+                <input type="text" id="notificationTitle" placeholder="Title">
             </div>
-            <div class="online-count">
-                <i class="fas fa-circle" style="font-size:0.5rem;color:var(--accent2);"></i>
-                <span id="onlineCountText">—</span> online
+            <div class="form-group">
+                <i class="fas fa-align-left"></i>
+                <textarea id="notificationContent" placeholder="Content"></textarea>
             </div>
-        </div>
-
-        <!-- Messages -->
-        <div class="chat-messages" id="chatMessages">
-            <div class="empty-msg" id="emptyState">
-                <i class="fas fa-comments"></i>
-                <p>No messages yet. Say something! 👋</p>
+            <div class="form-group">
+                <i class="fas fa-calendar-alt"></i>
+                <select id="notificationBatch">
+                    <option value="">All Batches</option>
+                </select>
             </div>
-        </div>
-
-        <!-- Typing indicator -->
-        <div class="typing-indicator" id="typingIndicator" style="display:none;">
-            <div class="typing-dots"><span></span><span></span><span></span></div>
-            <span id="typingText">Someone is typing...</span>
-        </div>
-
-        <!-- Input -->
-        <div class="chat-input-area">
-            <div class="chat-input-wrap">
-                <input type="text" id="msgInput" placeholder="Message Global Campus..." maxlength="500" onkeydown="handleMsgKey(event)" oninput="handleTyping()">
-                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
+            <div class="form-group">
+                <i class="fas fa-building"></i>
+                <select id="notificationDepartment">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <i class="fas fa-layer-group"></i>
+                <select id="notificationSemester">
+                    <option value="">All Semesters</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="createNotification()">Send Notification</button>
+                <button class="btn-outline" onclick="closeNotificationModal()">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Members panel -->
-    <div class="members-panel">
-        <h4>Online Members</h4>
-        <div id="membersList"></div>
-    </div>
-</div>
-
-<script>
-// ============================================================
-//  APP STATE
-// ============================================================
-let currentUser    = null;
-let currentProfile = null;
-let currentRoom    = 'global';
-let msgSubscription = null;
-let typingTimeout  = null;
-let allMessages    = [];
-let onlineMembers  = [];
-
-const ROOMS = {
-    global:    { icon:'🌐', title:'Global Campus', placeholder:'Message Global Campus...' },
-    dept:      { icon:'🏛️', title:'Department',    placeholder:'Message your department...' },
-    batch:     { icon:'👥', title:'Batch',          placeholder:'Message your batch...' },
-    hackathon: { icon:'🏆', title:'Hackathon BD',   placeholder:'Discuss hackathons...' }
-};
-
-// ============================================================
-//  TOAST
-// ============================================================
-function showToast(msg, type='success') {
-    const t  = document.getElementById('toast');
-    const tm = document.getElementById('toastMsg');
-    tm.textContent = msg;
-    t.className = `show ${type}`;
-    setTimeout(() => { t.className = ''; }, 3000);
-}
-
-// ============================================================
-//  AUTH TABS
-// ============================================================
-function switchTab(tab) {
-    document.getElementById('signinForm').style.display = tab==='signin' ? 'block' : 'none';
-    document.getElementById('signupForm').style.display = tab==='signup' ? 'block' : 'none';
-    document.getElementById('tabSignin').classList.toggle('active', tab==='signin');
-    document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
-}
-
-// ============================================================
-//  SIGN UP
-// ============================================================
-async function handleSignUp() {
-    const name      = document.getElementById('suName').value.trim();
-    const studentId = document.getElementById('suStudentId').value.trim();
-    const batch     = document.getElementById('suBatch').value;
-    const dept      = document.getElementById('suDept').value;
-    const semester  = document.getElementById('suSemester').value;
-    const password  = document.getElementById('suPassword').value;
-
-    if (!name || !studentId || !batch || !dept || !semester || !password) {
-        return showToast('Please fill all fields!', 'error');
-    }
-    if (password.length < 6) return showToast('Password min 6 characters', 'error');
-
-    const btn = document.getElementById('signupBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Creating...';
-
-    // Use studentId as fake email for Supabase Auth
-    const fakeEmail = `${studentId.toLowerCase().replace(/[^a-z0-9]/g,'')}@campuscircle.vu`;
-
-    const { data, error } = await _supabase.auth.signUp({
-        email: fakeEmail,
-        password: password,
-        options: {
-            data: { name, student_id: studentId, department: dept, batch, semester }
-        }
-    });
-
-    if (error) {
-        showToast(error.message, 'error');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-        return;
-    }
-
-    // Insert profile
-    if (data.user) {
-        const { error: pErr } = await _supabase.from('profiles').insert({
-            id: data.user.id,
-            name, student_id: studentId,
-            department: dept, batch, semester,
-            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentId}&backgroundColor=7c3aed`
-        });
-        if (pErr) console.warn('Profile insert:', pErr.message);
-    }
-
-    showToast('Account created! Signing you in...', 'success');
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
-
-    // Auto sign in
-    setTimeout(() => {
-        document.getElementById('siStudentId').value = studentId;
-        document.getElementById('siPassword').value = password;
-        switchTab('signin');
-        handleSignIn();
-    }, 800);
-}
-
-// ============================================================
-//  SIGN IN
-// ============================================================
-async function handleSignIn() {
-    const studentId = document.getElementById('siStudentId').value.trim();
-    const password  = document.getElementById('siPassword').value;
-
-    if (!studentId || !password) return showToast('Fill Student ID & Password', 'error');
-
-    const btn = document.getElementById('signinBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span> Signing in...';
-
-    const fakeEmail = `${studentId.toLowerCase().replace(/[^a-z0-9]/g,'')}@campuscircle.vu`;
-
-    const { data, error } = await _supabase.auth.signInWithPassword({
-        email: fakeEmail, password
-    });
-
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Sign In';
-
-    if (error) return showToast('Invalid Student ID or Password', 'error');
-
-    currentUser = data.user;
-    await loadProfile();
-    enterChat();
-}
-
-// ============================================================
-//  SIGN OUT
-// ============================================================
-async function handleSignOut() {
-    if (!confirm('Sign out?')) return;
-    if (msgSubscription) msgSubscription.unsubscribe();
-    await _supabase.auth.signOut();
-    currentUser = null; currentProfile = null;
-    closeProfile();
-    document.getElementById('chatApp').classList.add('hidden');
-    document.getElementById('authPage').classList.remove('hidden');
-    showToast('Signed out', 'success');
-}
-
-// ============================================================
-//  LOAD PROFILE
-// ============================================================
-async function loadProfile() {
-    if (!currentUser) return;
-    const { data, error } = await _supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
-
-    if (error) { console.warn('Profile load:', error.message); return; }
-    currentProfile = data;
-    updateProfileUI();
-}
-
-function updateProfileUI() {
-    if (!currentProfile) return;
-    const p = currentProfile;
-
-    // Sidebar avatar
-    const avatarUrl = p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.student_id}&backgroundColor=7c3aed`;
-    document.getElementById('sidebarAvatar').src     = avatarUrl;
-    document.getElementById('profileAvatarImg').src  = avatarUrl;
-
-    document.getElementById('profileNameDisplay').textContent = p.name;
-    document.getElementById('profileDeptDisplay').textContent = `${p.department?.toUpperCase()} • Batch ${p.batch}`;
-    document.getElementById('pStudentId').textContent  = p.student_id;
-    document.getElementById('pDept').textContent       = p.department?.toUpperCase();
-    document.getElementById('pBatch').textContent      = p.batch;
-    document.getElementById('pBatchChip').textContent  = p.batch;
-    document.getElementById('pSemester').textContent   = p.semester;
-    document.getElementById('pSemChip').textContent    = p.semester;
-
-    if (p.bio) {
-        document.getElementById('bioInput').value = p.bio;
-        updateBioCounter();
-    }
-
-    // Room labels
-    document.getElementById('deptRoomLabel').textContent = p.department?.toUpperCase() || 'Dept';
-    document.getElementById('batchRoomLabel').textContent = `Batch ${p.batch}` || 'Batch';
-}
-
-// ============================================================
-//  ENTER CHAT
-// ============================================================
-function enterChat() {
-    document.getElementById('authPage').classList.add('hidden');
-    document.getElementById('chatApp').classList.remove('hidden');
-    switchRoom('global');
-    loadOnlineMembers();
-    showToast(`Welcome back, ${currentProfile?.name || 'Student'}! 👋`, 'success');
-}
-
-// ============================================================
-//  ROOM SWITCHING
-// ============================================================
-function switchRoom(room) {
-    currentRoom = room;
-    allMessages = [];
-    document.getElementById('chatMessages').innerHTML = `
-        <div class="empty-msg" id="emptyState">
-            <i class="fas fa-comments"></i>
-            <p>No messages yet. Say something! 👋</p>
-        </div>`;
-
-    // Update sidebar buttons
-    ['global','dept','batch','hackathon'].forEach(r => {
-        document.getElementById(`btnRoom_${r}`)?.classList?.remove('active');
-        document.getElementById(`btn${r.charAt(0).toUpperCase()+r.slice(1)}`)?.classList?.remove('active');
-        document.getElementById(`room-${r}`)?.classList?.remove('active');
-    });
-    document.getElementById(`btn${room.charAt(0).toUpperCase()+room.slice(1)}`)?.classList?.add('active');
-    document.getElementById(`room-${room}`)?.classList?.add('active');
-
-    // Update header
-    const rd = ROOMS[room] || ROOMS.global;
-    document.getElementById('roomIcon').textContent     = rd.icon;
-    document.getElementById('roomTitle').textContent    = getRoomName(room);
-    document.getElementById('msgInput').placeholder     = rd.placeholder;
-
-    // Unsubscribe old
-    if (msgSubscription) msgSubscription.unsubscribe();
-
-    // Load + subscribe
-    loadMessages();
-    subscribeMessages();
-}
-
-function getRoomName(room) {
-    if (room === 'dept')  return `${currentProfile?.department?.toUpperCase() || 'Department'} Chat`;
-    if (room === 'batch') return `Batch ${currentProfile?.batch || ''} Chat`;
-    return ROOMS[room]?.title || room;
-}
-
-function getRoomChannel(room) {
-    if (room === 'dept')  return `dept_${currentProfile?.department || 'general'}`;
-    if (room === 'batch') return `batch_${currentProfile?.batch || 'general'}`;
-    return room;
-}
-
-// ============================================================
-//  LOAD MESSAGES
-// ============================================================
-async function loadMessages() {
-    const channel = getRoomChannel(currentRoom);
-    const { data, error } = await _supabase
-        .from('messages')
-        .select('*, profiles(name, avatar_url, department, batch)')
-        .eq('room', channel)
-        .order('created_at', { ascending: true })
-        .limit(80);
-
-    if (error) { console.warn('Load messages:', error.message); return; }
-
-    allMessages = data || [];
-    renderAllMessages();
-}
-
-function renderAllMessages() {
-    const container = document.getElementById('chatMessages');
-    if (!allMessages.length) {
-        container.innerHTML = `<div class="empty-msg" id="emptyState"><i class="fas fa-comments"></i><p>No messages yet. Say something! 👋</p></div>`;
-        return;
-    }
-
-    container.innerHTML = '';
-    let lastDate = null;
-
-    allMessages.forEach(msg => {
-        const msgDate = new Date(msg.created_at).toLocaleDateString('en-BD', { day:'numeric', month:'long', year:'numeric' });
-        if (msgDate !== lastDate) {
-            const sep = document.createElement('div');
-            sep.className = 'date-sep';
-            sep.innerHTML = `<span>${msgDate}</span>`;
-            container.appendChild(sep);
-            lastDate = msgDate;
-        }
-        container.appendChild(buildMsgEl(msg));
-    });
-
-    scrollBottom();
-}
-
-function buildMsgEl(msg) {
-    const isOwn   = msg.user_id === currentUser?.id;
-    const profile = msg.profiles;
-    const name    = profile?.name || 'Student';
-    const avatar  = profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.user_id}&backgroundColor=7c3aed`;
-    const time    = new Date(msg.created_at).toLocaleTimeString('en-BD', { hour:'2-digit', minute:'2-digit' });
-
-    const div = document.createElement('div');
-    div.className = `msg ${isOwn ? 'own' : ''}`;
-    div.dataset.msgId = msg.id;
-
-    div.innerHTML = `
-        <img class="msg-avatar" src="${avatar}" alt="${name}" onclick="viewMemberProfile('${msg.user_id}')">
-        <div class="msg-body">
-            <div class="msg-meta">
-                <span class="msg-name">${isOwn ? 'You' : name}</span>
-                <span>${time}</span>
-            </div>
-            <div class="msg-bubble ${isOwn ? 'own' : 'other'}">${escapeHtml(msg.content)}</div>
-        </div>`;
-    return div;
-}
-
-function escapeHtml(text) {
-    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function scrollBottom() {
-    const c = document.getElementById('chatMessages');
-    setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
-}
-
-// ============================================================
-//  REALTIME SUBSCRIPTION
-// ============================================================
-function subscribeMessages() {
-    const channel = getRoomChannel(currentRoom);
-    msgSubscription = _supabase
-        .channel(`room-${channel}`)
-        .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'messages',
-            filter: `room=eq.${channel}`
-        }, async (payload) => {
-            // Fetch full message with profile
-            const { data } = await _supabase
-                .from('messages')
-                .select('*, profiles(name, avatar_url, department, batch)')
-                .eq('id', payload.new.id)
-                .single();
-
-            if (data) {
-                // Remove empty state
-                document.getElementById('emptyState')?.remove();
-                allMessages.push(data);
-                const container = document.getElementById('chatMessages');
-                container.appendChild(buildMsgEl(data));
-                scrollBottom();
+    <script>
+        // Password Strength Checker
+        function checkPasswordStrength() {
+            const password = document.getElementById('signupPassword').value;
+            const strengthBar = document.getElementById('passwordStrength');
+            const suggestion = document.getElementById('passwordSuggestion');
+            
+            let strength = 0;
+            let feedback = '';
+            
+            if(password.length >= 8) strength++;
+            if(password.match(/[a-z]+/)) strength++;
+            if(password.match(/[A-Z]+/)) strength++;
+            if(password.match(/[0-9]+/)) strength++;
+            if(password.match(/[$@#&!]+/)) strength++;
+            
+            strengthBar.className = 'password-strength';
+            
+            if(password.length < 8) {
+                feedback = 'Password should be at least 8 characters long';
+            } else if(strength < 3) {
+                strengthBar.classList.add('strength-weak');
+                feedback = 'Weak: Add uppercase, numbers, or special characters';
+            } else if(strength < 5) {
+                strengthBar.classList.add('strength-medium');
+                feedback = 'Medium: Good, but could be stronger';
+            } else {
+                strengthBar.classList.add('strength-strong');
+                feedback = 'Strong: Excellent password!';
             }
-        })
-        .subscribe();
-}
-
-// ============================================================
-//  SEND MESSAGE
-// ============================================================
-async function sendMessage() {
-    const input = document.getElementById('msgInput');
-    const content = input.value.trim();
-    if (!content || !currentUser) return;
-
-    const btn = document.getElementById('sendBtn');
-    btn.disabled = true;
-    input.value = '';
-
-    const channel = getRoomChannel(currentRoom);
-    const { error } = await _supabase.from('messages').insert({
-        user_id: currentUser.id,
-        room: channel,
-        content: content
-    });
-
-    btn.disabled = false;
-    if (error) { showToast('Failed to send', 'error'); input.value = content; }
-}
-
-function handleMsgKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
-}
-
-// Typing indicator (visual only — no DB)
-function handleTyping() {
-    // Could extend with Supabase presence if needed
-}
-
-// ============================================================
-//  ONLINE MEMBERS
-// ============================================================
-async function loadOnlineMembers() {
-    const { data } = await _supabase
-        .from('profiles')
-        .select('id, name, avatar_url, department, batch')
-        .limit(30);
-
-    onlineMembers = data || [];
-    renderMembers();
-    document.getElementById('onlineCountText').textContent = onlineMembers.length;
-}
-
-function renderMembers() {
-    const list = document.getElementById('membersList');
-    list.innerHTML = onlineMembers.map(m => `
-        <div class="member-item" onclick="viewMemberProfile('${m.id}')">
-            <img src="${m.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.id}&backgroundColor=7c3aed`}" alt="${m.name}">
-            <div class="member-item-info">
-                <h5>${m.name}</h5>
-                <span>${m.department?.toUpperCase()} • ${m.batch}</span>
-            </div>
-            <div class="online-dot"></div>
-        </div>
-    `).join('');
-
-    document.getElementById('pMsgCount').textContent = allMessages.filter(m => m.user_id === currentUser?.id).length;
-}
-
-async function viewMemberProfile(userId) {
-    // Mini profile popup (can extend)
-    const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-    if (!data) return;
-    const isMe = userId === currentUser?.id;
-    if (isMe) { openProfile(); return; }
-    showToast(`${data.name} • ${data.department?.toUpperCase()} • Batch ${data.batch}`, 'success');
-}
-
-// ============================================================
-//  PROFILE PAGE
-// ============================================================
-function openProfile() {
-    document.getElementById('profilePage').classList.remove('hidden');
-    updateProfileUI();
-}
-
-function closeProfile() {
-    document.getElementById('profilePage').classList.add('hidden');
-}
-
-function updateBioCounter() {
-    const val = document.getElementById('bioInput').value.length;
-    const el  = document.getElementById('bioCounter');
-    el.textContent = `${val} / 110`;
-    el.classList.toggle('warn', val > 100);
-}
-
-async function saveBio() {
-    const bio = document.getElementById('bioInput').value.trim();
-    if (bio.length > 110) return showToast('Bio max 110 characters', 'error');
-
-    const { error } = await _supabase
-        .from('profiles')
-        .update({ bio })
-        .eq('id', currentUser.id);
-
-    if (error) return showToast('Failed to save bio', 'error');
-    currentProfile.bio = bio;
-    showToast('Bio saved! ✅', 'success');
-}
-
-async function handleAvatarUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) return showToast('Image must be under 2MB', 'error');
-
-    showToast('Uploading...', 'success');
-
-    const ext      = file.name.split('.').pop();
-    const fileName = `${currentUser.id}.${ext}`;
-
-    const { error: upErr } = await _supabase.storage
-        .from('avatars')
-        .upload(fileName, file, { upsert: true });
-
-    if (upErr) return showToast('Upload failed: ' + upErr.message, 'error');
-
-    const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
-    const avatarUrl = urlData.publicUrl + '?t=' + Date.now();
-
-    const { error: updateErr } = await _supabase
-        .from('profiles')
-        .update({ avatar_url: avatarUrl })
-        .eq('id', currentUser.id);
-
-    if (updateErr) return showToast('Failed to update profile', 'error');
-
-    currentProfile.avatar_url = avatarUrl;
-    updateProfileUI();
-    showToast('Profile photo updated! 🎉', 'success');
-}
-
-// ============================================================
-//  AUTO AUTH CHECK
-// ============================================================
-async function initApp() {
-    const { data: { session } } = await _supabase.auth.getSession();
-
-    if (session?.user) {
-        currentUser = session.user;
-        await loadProfile();
-        if (currentProfile) {
-            enterChat();
-        } else {
-            document.getElementById('authPage').classList.remove('hidden');
+            
+            suggestion.textContent = feedback;
         }
-    } else {
-        document.getElementById('authPage').classList.remove('hidden');
-    }
-}
 
-// Additional SQL needed — add 'room' column to messages
-// ALTER TABLE messages ADD COLUMN IF NOT EXISTS room text DEFAULT 'global';
+        // Show/Hide Forms
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+        }
 
-initApp();
-</script>
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+        }
+
+        // Handle Signup
+        async function handleSignup() {
+            const name = document.getElementById('signupName').value;
+            const studentId = document.getElementById('signupStudentId').value;
+            const email = document.getElementById('signupEmail').value;
+            const semester = document.getElementById('signupSemester').value;
+            const department = document.getElementById('signupDepartment').value;
+            const batch = document.getElementById('signupBatch').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPass = document.getElementById('signupConfirmPassword').value;
+
+            // Validation
+            if(!name || !studentId || !email || !semester || !department || !batch || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            if(password !== confirmPass) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if(password.length < 8) {
+                alert('Password must be at least 8 characters long');
+                return;
+            }
+
+            try {
+                // Check if user exists
+                const { data: existingUser } = await supabase
+                    .from('users')
+                    .select('*')
+                    .or(`student_id.eq.${studentId},email.eq.${email}`)
+                    .single();
+
+                if(existingUser) {
+                    alert('Student ID or Email already exists');
+                    return;
+                }
+
+                // Create user
+                const { data, error } = await supabase
+                    .from('users')
+                    .insert([
+                        {
+                            name: name,
+                            student_id: studentId,
+                            email: email,
+                            semester: parseInt(semester),
+                            department: department,
+                            batch: batch,
+                            password_hash: btoa(password), // Simple encoding (use proper hashing in production)
+                            bio: '',
+                            created_at: new Date()
+                        }
+                    ])
+                    .select();
+
+                if(error) throw error;
+
+                alert('Account created successfully! Please login.');
+                showLogin();
+            } catch(error) {
+                console.error('Signup error:', error);
+                alert('Error creating account. Please try again.');
+            }
+        }
+
+        // Handle Login
+        async function handleLogin() {
+            const studentId = document.getElementById('loginStudentId').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if(!studentId || !password) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('student_id', studentId)
+                    .eq('password_hash', btoa(password))
+                    .single();
+
+                if(error || !data) {
+                    alert('Invalid Student ID or Password');
+                    return;
+                }
+
+                currentUser = data;
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                
+                loadUserProfile();
+                loadMessages();
+                loadNotifications();
+                subscribeToMessages();
+                subscribeToNotifications();
+                
+                // Populate dropdowns
+                populateDropdowns();
+            } catch(error) {
+                console.error('Login error:', error);
+                alert('Error logging in. Please try again.');
+            }
+        }
+
+        // Load User Profile
+        function loadUserProfile() {
+            if(!currentUser) return;
+
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileBio').textContent = currentUser.bio || 'No bio yet';
+            document.getElementById('avatarText').textContent = currentUser.name.charAt(0).toUpperCase();
+            
+            if(currentUser.avatar_url) {
+                document.getElementById('avatarImage').src = currentUser.avatar_url;
+                document.getElementById('avatarImage').style.display = 'block';
+                document.getElementById('avatarText').style.display = 'none';
+            }
+
+            const details = `
+                <p><i class="fas fa-id-card"></i> ${currentUser.student_id}</p>
+                <p><i class="fas fa-envelope"></i> ${currentUser.email}</p>
+                <p><i class="fas fa-layer-group"></i> Semester ${currentUser.semester}</p>
+                <p><i class="fas fa-building"></i> ${currentUser.department}</p>
+                <p><i class="fas fa-calendar-alt"></i> Batch ${currentUser.batch}</p>
+            `;
+            
+            document.getElementById('profileDetails').innerHTML = details;
+        }
+
+        // Load Messages
+        async function loadMessages() {
+            try {
+                const { data, error } = await supabase
+                    .from('messages')
+                    .select(`
+                        *,
+                        users:user_id (name, avatar_url, batch, department)
+                    `)
+                    .order('created_at', { ascending: true });
+
+                if(error) throw error;
+
+                displayMessages(data || []);
+            } catch(error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Display Messages
+        function displayMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+
+            messages.forEach(msg => {
+                const isOwn = msg.user_id === currentUser?.id;
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isOwn ? 'own' : ''}`;
+
+                const time = new Date(msg.created_at).toLocaleTimeString();
+
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">${msg.users?.name?.charAt(0) || '?'}</div>
+                    <div class="message-content">
+                        ${!isOwn ? `<div class="message-sender">${msg.users?.name} (Batch ${msg.users?.batch})</div>` : ''}
+                        <div class="message-text">${msg.content}</div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+
+                container.appendChild(messageDiv);
+            });
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Send Message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+
+            if(!content || !currentUser) return;
+
+            try {
+                const { error } = await supabase
+                    .from('messages')
+                    .insert([
+                        {
+                            user_id: currentUser.id,
+                            content: content,
+                            created_at: new Date()
+                        }
+                    ]);
+
+                if(error) throw error;
+
+                input.value = '';
+            } catch(error) {
+                console.error('Error sending message:', error);
+                alert('Error sending message');
+            }
+        }
+
+        // Subscribe to Messages (Real-time)
+        function subscribeToMessages() {
+            if(messagesSubscription) {
+                messagesSubscription.unsubscribe();
+            }
+
+            messagesSubscription = supabase
+                .channel('messages-channel')
+                .on('postgres_changes', 
+                    { event: 'INSERT', schema: 'public', table: 'messages' },
+                    async (payload) => {
+                        // Fetch user details for the new message
+                        const { data: userData } = await supabase
+                            .from('users')
+                            .select('name, avatar_url, batch, department')
+                            .eq('id', payload.new.user_id)
+                            .single();
+
+                        payload.new.users = userData;
+                        
+                        const messages = [payload.new];
+                        displayMessages(messages);
+                    }
+                )
+                .subscribe();
+        }
+
+        // Load Notifications
+        async function loadNotifications() {
+            try {
+                let query = supabase
+                    .from('notifications')
+                    .select(`
+                        *,
+                        sender:sender_id (name, batch, department)
+                    `)
+                    .order('created_at', { ascending: false });
+
+                // Filter notifications based on user's batch, department, semester
+                if(currentUser) {
+                    query = query.or(
+                        `target_batch.eq.${currentUser.batch},target_batch.is.null`
+                    ).or(
+                        `target_department.eq.${currentUser.department},target_department.is.null`
+                    ).or(
+                        `target_semester.eq.${currentUser.semester},target_semester.is.null`
+                    );
+                }
+
+                const { data, error } = await query;
+
+                if(error) throw error;
+
+                displayNotifications(data || []);
+            } catch(error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // Display Notifications
+        function displayNotifications(notifications) {
+            const container = document.getElementById('notificationsContainer');
+            container.innerHTML = '';
+
+            notifications.forEach(notif => {
+                const time = new Date(notif.created_at).toLocaleString();
+                const senderName = notif.sender?.name || 'Unknown';
+                const targetInfo = [];
+                
+                if(notif.target_batch) targetInfo.push(`Batch ${notif.target_batch}`);
+                if(notif.target_department) targetInfo.push(notif.target_department);
+                if(notif.target_semester) targetInfo.push(`Semester ${notif.target_semester}`);
+                
+                const targetText = targetInfo.length ? ` → ${targetInfo.join(', ')}` : ' → Everyone';
+
+                const notifDiv = document.createElement('div');
+                notifDiv.className = 'notification-card';
+                notifDiv.innerHTML = `
+                    <div class="notification-title">${notif.title}</div>
+                    <div class="notification-content">${notif.content}</div>
+                    <div class="notification-meta">
+                        <span><i class="fas fa-user"></i> ${senderName}</span>
+                        <span><i class="fas fa-clock"></i> ${time}</span>
+                        <span><i class="fas fa-bullseye"></i> ${targetText}</span>
+                    </div>
+                `;
+
+                container.appendChild(notifDiv);
+            });
+        }
+
+        // Subscribe to Notifications (Real-time)
+        function subscribeToNotifications() {
+            if(notificationsSubscription) {
+                notificationsSubscription.unsubscribe();
+            }
+
+            notificationsSubscription = supabase
+                .channel('notifications-channel')
+                .on('postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'notifications' },
+                    (payload) => {
+                        // Check if notification is for current user
+                        if(currentUser) {
+                            const notif = payload.new;
+                            const shouldShow = 
+                                (!notif.target_batch || notif.target_batch === currentUser.batch) &&
+                                (!notif.target_department || notif.target_department === currentUser.department) &&
+                                (!notif.target_semester || notif.target_semester === currentUser.semester);
+
+                            if(shouldShow) {
+                                loadNotifications(); // Reload all notifications
+                                // Show a toast notification
+                                showNotificationToast(notif.title);
+                            }
+                        }
+                    }
+                )
+                .subscribe();
+        }
+
+        // Show Notification Toast
+        function showNotificationToast(title) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.innerHTML = `
+                <i class="fas fa-bell"></i>
+                <strong>New Notification:</strong> ${title}
+            `;
+
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Create Notification
+        async function createNotification() {
+            const title = document.getElementById('notificationTitle').value;
+            const content = document.getElementById('notificationContent').value;
+            const batch = document.getElementById('notificationBatch').value;
+            const department = document.getElementById('notificationDepartment').value;
+            const semester = document.getElementById('notificationSemester').value;
+
+            if(!title || !content) {
+                alert('Please fill title and content');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('notifications')
+                    .insert([
+                        {
+                            sender_id: currentUser.id,
+                            title: title,
+                            content: content,
+                            target_batch: batch || null,
+                            target_department: department || null,
+                            target_semester: semester ? parseInt(semester) : null,
+                            created_at: new Date()
+                        }
+                    ]);
+
+                if(error) throw error;
+
+                alert('Notification sent successfully!');
+                closeNotificationModal();
+                
+                // Clear form
+                document.getElementById('notificationTitle').value = '';
+                document.getElementById('notificationContent').value = '';
+            } catch(error) {
+                console.error('Error creating notification:', error);
+                alert('Error sending notification');
+            }
+        }
+
+        // Populate Dropdowns
+        function populateDropdowns() {
+            // Semester dropdown
+            const semesters = [1,2,3,4,5,6,7,8];
+            const semesterSelects = ['editSemester', 'notificationSemester'];
+            
+            semesterSelects.forEach(id => {
+                const select = document.getElementById(id);
+                if(select) {
+                    select.innerHTML = id === 'notificationSemester' ? '<option value="">All Semesters</option>' : '';
+                    semesters.forEach(s => {
+                        select.innerHTML += `<option value="${s}">Semester ${s}</option>`;
+                    });
+                }
+            });
+
+            // Department dropdown (same as signup)
+            const departments = [
+                'CSE', 'EEE', 'BBA', 'English', 'Law', 'Pharmacy', 'Civil', 
+                'ME', 'ETE', 'Textile', 'Economics', 'Political Science', 
+                'Sociology', 'Mathematics', 'Physics', 'Chemistry', 
+                'Accounting', 'Finance', 'Marketing'
+            ];
+
+            const deptSelects = ['editDepartment', 'notificationDepartment'];
+            
+            deptSelects.forEach(id => {
+                const select = document.getElementById(id);
+                if(select) {
+                    select.innerHTML = id === 'notificationDepartment' ? '<option value="">All Departments</option>' : '';
+                    departments.forEach(d => {
+                        select.innerHTML += `<option value="${d}">${d}</option>`;
+                    });
+                }
+            });
+
+            // Batch dropdown
+            const batchSelects = ['editBatch', 'notificationBatch'];
+            
+            batchSelects.forEach(id => {
+                const select = document.getElementById(id);
+                if(select) {
+                    select.innerHTML = id === 'notificationBatch' ? '<option value="">All Batches</option>' : '';
+                    for(let i = 28; i <= 38; i++) {
+                        select.innerHTML += `<option value="${i}">Batch ${i}</option>`;
+                    }
+                }
+            });
+
+            // Set current user values in edit form
+            if(currentUser) {
+                document.getElementById('editName').value = currentUser.name || '';
+                document.getElementById('editStudentId').value = currentUser.student_id || '';
+                document.getElementById('editEmail').value = currentUser.email || '';
+                document.getElementById('editSemester').value = currentUser.semester || '';
+                document.getElementById('editDepartment').value = currentUser.department || '';
+                document.getElementById('editBatch').value = currentUser.batch || '';
+                document.getElementById('editBio').value = currentUser.bio || '';
+                document.getElementById('bioCount').textContent = (currentUser.bio || '').length;
+            }
+        }
+
+        // Show Edit Profile Modal
+        function showEditProfileModal() {
+            document.getElementById('editProfileModal').classList.add('active');
+            populateDropdowns();
+        }
+
+        // Update Profile
+        async function updateProfile() {
+            const name = document.getElementById('editName').value;
+            const email = document.getElementById('editEmail').value;
+            const semester = document.getElementById('editSemester').value;
+            const department = document.getElementById('editDepartment').value;
+            const batch = document.getElementById('editBatch').value;
+            const bio = document.getElementById('editBio').value;
+
+            if(!name || !email || !semester || !department || !batch) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            if(bio.length > 110) {
+                alert('Bio must be less than 110 characters');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update({
+                        name: name,
+                        email: email,
+                        semester: parseInt(semester),
+                        department: department,
+                        batch: batch,
+                        bio: bio
+                    })
+                    .eq('id', currentUser.id);
+
+                if(error) throw error;
+
+                // Update current user
+                currentUser = {
+                    ...currentUser,
+                    name, email,
+                    semester: parseInt(semester),
+                    department, batch, bio
+                };
+
+                loadUserProfile();
+                closeModal();
+                alert('Profile updated successfully!');
+            } catch(error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile');
+            }
+        }
+
+        // Avatar Preview
+        function previewAvatar() {
+            const file = document.getElementById('avatarUpload').files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarImage').src = e.target.result;
+                    document.getElementById('avatarImage').style.display = 'block';
+                    document.getElementById('avatarText').style.display = 'none';
+                    
+                    // In a real app, you'd upload this to Supabase Storage
+                    // For now, we'll just show preview
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('editProfileModal').classList.remove('active');
+        }
+
+        // Show Create Notification Modal
+        function showCreateNotificationModal() {
+            document.getElementById('createNotificationModal').classList.add('active');
+            populateDropdowns();
+        }
+
+        // Close Notification Modal
+        function closeNotificationModal() {
+            document.getElementById('createNotificationModal').classList.remove('active');
+        }
+
+        // Switch Tabs
+        function switchTab(tab) {
+            const chatArea = document.getElementById('chatArea');
+            const notificationsPanel = document.getElementById('notificationsPanel');
+            const navItems = document.querySelectorAll('.nav-item');
+
+            navItems.forEach(item => item.classList.remove('active'));
+
+            if(tab === 'chat') {
+                chatArea.style.display = 'flex';
+                notificationsPanel.style.display = 'none';
+                navItems[0].classList.add('active');
+            } else {
+                chatArea.style.display = 'none';
+                notificationsPanel.style.display = 'block';
+                navItems[1].classList.add('active');
+                loadNotifications();
+            }
+        }
+
+        // Logout
+        function logout() {
+            if(messagesSubscription) {
+                messagesSubscription.unsubscribe();
+            }
+            if(notificationsSubscription) {
+                notificationsSubscription.unsubscribe();
+            }
+            
+            currentUser = null;
+            document.getElementById('authSection').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            
+            // Clear forms
+            document.getElementById('loginStudentId').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        // Bio character counter
+        document.getElementById('editBio')?.addEventListener('input', function() {
+            document.getElementById('bioCount').textContent = this.value.length;
+        });
+
+        // Check if user is already logged in (optional)
+        // You can add session persistence here
+    </script>
 </body>
 </html>
