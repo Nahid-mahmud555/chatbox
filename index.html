@@ -3,768 +3,1459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Circle - RealTime Chat Platform</title>
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <!-- Supabase -->
+    <title>Campus Circle — Chat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ======================================================
+         🔑 SUPABASE KEYS — SHUDHU EI DUI JAIGA CHANGE KOR
+         ====================================================== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
+    <script>
+        // ┌─────────────────────────────────────────────────────┐
+        // │  👇 EI LINE E TOR SUPABASE PROJECT URL BOSAI DE     │
+        const SUPABASE_URL = 'https://htozsbirvogyrbuosujg.supabase.co';
+        // └─────────────────────────────────────────────────────┘
+
+        // ┌─────────────────────────────────────────────────────┐
+        // │  👇 EI LINE E TOR SUPABASE ANON KEY BOSAI DE        │
+        const SUPABASE_ANON_KEY = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
+        // └─────────────────────────────────────────────────────┘
+
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
     <style>
-        /* Same CSS as before - keep it exactly as previous */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #7C3AED;
+            --primary-light: #A78BFA;
+            --secondary: #F472B6;
+            --accent: #22D3EE;
+            --accent2: #34D399;
+            --bg: #0A0A0F;
+            --bg2: #111118;
+            --bg3: #16161f;
+            --surface: rgba(255,255,255,0.04);
+            --surface2: rgba(255,255,255,0.07);
+            --border: rgba(255,255,255,0.07);
+            --border2: rgba(124,58,237,0.25);
+            --text: #F1F0FF;
+            --text2: #A09BBF;
+            --text3: #5E5A7A;
+            --success: #34D399;
+            --error: #F87171;
+            --radius: 14px;
+            --radius2: 22px;
         }
+
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .auth-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .auth-card {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 500px;
             overflow: hidden;
-            animation: slideUp 0.5s ease;
         }
 
-        .auth-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
+        /* Ambient orbs */
+        body::before {
+            content:''; position:fixed; top:-15%; right:-10%;
+            width:500px; height:500px;
+            background: radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%);
+            pointer-events:none; z-index:0;
+        }
+        body::after {
+            content:''; position:fixed; bottom:-15%; left:-10%;
+            width:400px; height:400px;
+            background: radial-gradient(circle, rgba(34,211,238,0.07) 0%, transparent 70%);
+            pointer-events:none; z-index:0;
+        }
+
+        /* ===== TOAST ===== */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px);
+            background: var(--bg3); border: 1px solid var(--border2);
+            padding: 12px 24px; border-radius: 50px;
+            font-size: 0.88rem; font-weight: 600;
+            z-index: 99999; transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+        #toast.success { border-color: rgba(52,211,153,0.4); color: var(--accent2); }
+        #toast.error { border-color: rgba(248,113,113,0.4); color: var(--error); }
+
+        /* ===== OVERLAY PAGES ===== */
+        .page {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; padding: 20px;
+            background: var(--bg);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        .page.hidden { opacity:0; pointer-events:none; transform: scale(0.97); }
+
+        /* ===== AUTH CARD ===== */
+        .auth-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius2);
+            padding: 2.5rem 2.2rem;
+            width: 100%; max-width: 440px;
+            backdrop-filter: blur(30px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            animation: card-pop 0.5s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes card-pop {
+            from { opacity:0; transform: translateY(30px) scale(0.96); }
+            to   { opacity:1; transform: translateY(0) scale(1); }
+        }
+
+        .auth-logo {
+            display: flex; align-items: center; gap: 10px;
+            justify-content: center; margin-bottom: 2rem;
+        }
+        .auth-logo i { font-size: 1.6rem; color: var(--primary-light); filter: drop-shadow(0 0 10px var(--primary)); }
+        .auth-logo span { font-family: 'Nunito', sans-serif; font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
+        .auth-logo em { font-style: normal; color: var(--primary-light); }
+
+        .auth-title { font-family: 'Nunito', sans-serif; font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 0.3rem; }
+        .auth-sub { text-align: center; color: var(--text2); font-size: 0.85rem; margin-bottom: 1.8rem; }
+
+        /* Tabs */
+        .auth-tabs {
+            display: flex; background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border); border-radius: 50px;
+            padding: 4px; margin-bottom: 1.8rem; gap: 4px;
+        }
+        .auth-tab {
+            flex: 1; padding: 9px; border-radius: 50px; border: none;
+            background: transparent; color: var(--text2);
+            font-family: 'Nunito', sans-serif; font-size: 0.88rem;
+            font-weight: 700; cursor: pointer; transition: all 0.25s ease;
+        }
+        .auth-tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; box-shadow: 0 4px 15px rgba(124,58,237,0.35);
+        }
+
+        /* Form */
+        .form-group { margin-bottom: 1.1rem; }
+        .form-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; letter-spacing: 0.3px; text-transform: uppercase; }
+        .form-input {
+            width: 100%; padding: 11px 15px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+            border-radius: var(--radius); font-size: 0.92rem;
+            color: var(--text); font-family: 'Outfit', sans-serif;
+            transition: all 0.25s ease;
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); background: rgba(124,58,237,0.07); box-shadow: 0 0 0 3px rgba(124,58,237,0.12); }
+        .form-input::placeholder { color: var(--text3); }
+        select.form-input option { background: #1a1a2e; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+
+        .auth-btn {
+            width: 100%; padding: 13px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; border: none; border-radius: var(--radius);
+            font-size: 0.95rem; font-weight: 800;
+            font-family: 'Nunito', sans-serif; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+            margin-top: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
+        .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .divider { display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0; }
+        .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
+        .divider span { font-size: 0.75rem; color: var(--text3); }
+
+        /* ===== PROFILE PAGE ===== */
+        .profile-page {
+            position: fixed; inset: 0; z-index: 90;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            opacity: 1; transition: all 0.4s ease;
+        }
+        .profile-page.hidden { opacity:0; pointer-events:none; transform: translateX(100%); }
+
+        .profile-header-bar {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+            color: var(--text2); width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; font-size: 0.9rem;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .profile-header-bar h3 { font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800; }
+
+        .profile-body {
+            flex: 1; overflow-y: auto; padding: 2rem 1.5rem;
+            max-width: 600px; margin: 0 auto; width: 100%;
+        }
+
+        .profile-avatar-section {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 1rem; margin-bottom: 2rem;
+        }
+
+        .profile-avatar-wrap {
+            position: relative; width: 100px; height: 100px;
+        }
+        .profile-avatar-wrap img {
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover; border: 3px solid var(--primary);
+            box-shadow: 0 0 25px rgba(124,58,237,0.4);
+        }
+        .avatar-edit-btn {
+            position: absolute; bottom: 2px; right: 2px;
+            width: 30px; height: 30px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: 2px solid var(--bg); color: white;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.7rem; transition: transform 0.2s;
+        }
+        .avatar-edit-btn:hover { transform: scale(1.1); }
+        #avatarFileInput { display: none; }
+
+        .profile-name { font-family: 'Nunito', sans-serif; font-size: 1.3rem; font-weight: 900; }
+        .profile-dept { color: var(--text2); font-size: 0.85rem; }
+
+        /* NEW: Bio Display Box - Name er niche stylish box */
+        .profile-bio-box {
+            background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(167,139,250,0.05));
+            border: 1px solid rgba(124,58,237,0.2);
+            border-radius: 16px;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0 1.5rem 0;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-bio-box::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 5px;
+            font-size: 5rem;
+            color: rgba(124,58,237,0.2);
+            font-family: serif;
+            transform: rotate(180deg);
+            pointer-events: none;
+        }
+        
+        .profile-bio-box::after {
+            content: '"';
+            position: absolute;
+            bottom: -30px;
+            right: 5px;
+            font-size: 5rem;
+            color: rgba(124,58,237,0.2);
+            font-family: serif;
+            pointer-events: none;
+        }
+        
+        .profile-bio-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text);
             text-align: center;
+            font-style: italic;
+            position: relative;
+            z-index: 2;
+            word-break: break-word;
+        }
+        
+        .profile-bio-empty {
+            color: var(--text3);
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 0.2rem 0;
+        }
+        
+        .profile-bio-box i {
+            color: var(--primary-light);
+            margin-right: 5px;
+            opacity: 0.7;
         }
 
-        .auth-header i {
-            font-size: 50px;
-            margin-bottom: 15px;
+        .profile-stats-row {
+            display: flex; gap: 1.5rem; justify-content: center;
+            padding: 1.2rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+        .pstat { text-align: center; }
+        .pstat strong { display: block; font-family: 'Nunito', sans-serif; font-size: 1.3rem; font-weight: 900; color: var(--primary-light); }
+        .pstat span { font-size: 0.72rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .profile-info-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .info-chip {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 0.9rem 1rem;
+        }
+        .info-chip label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 700; display: block; margin-bottom: 0.3rem; }
+        .info-chip span { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+
+        .bio-section { margin-bottom: 1.5rem; }
+        .bio-section label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); font-weight: 700; display: block; margin-bottom: 0.6rem; }
+        .bio-textarea {
+            width: 100%; padding: 12px 15px;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+            border-radius: var(--radius); color: var(--text);
+            font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+            resize: none; line-height: 1.6; transition: all 0.25s;
+        }
+        .bio-textarea:focus { outline: none; border-color: var(--primary); background: rgba(124,58,237,0.06); }
+        .bio-counter { font-size: 0.72rem; color: var(--text3); text-align: right; margin-top: 0.3rem; }
+        .bio-counter.warn { color: var(--error); }
+
+        .save-bio-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; border: none; padding: 10px 24px; border-radius: 50px;
+            font-size: 0.85rem; font-weight: 800; font-family: 'Nunito', sans-serif;
+            cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+        }
+        .save-bio-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
+
+        /* ===== MAIN CHAT LAYOUT ===== */
+        #chatApp {
+            display: flex; height: 100vh;
+            position: relative; z-index: 1;
+        }
+        #chatApp.hidden { display: none; }
+
+        /* Sidebar */
+        .chat-sidebar {
+            width: 72px; background: rgba(10,10,15,0.95);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 1rem 0; gap: 0.3rem;
+            backdrop-filter: blur(20px);
+            z-index: 10;
         }
 
-        .auth-header h2 {
-            font-size: 28px;
-            margin-bottom: 10px;
+        .sidebar-logo {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: white; margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(124,58,237,0.4);
+            cursor: pointer;
+            text-decoration: none;
         }
 
-        .auth-body {
-            padding: 40px;
-        }
+        .sidebar-divider { width: 36px; height: 1px; background: var(--border); margin: 0.5rem 0; }
 
-        .form-group {
-            margin-bottom: 20px;
+        .sidebar-btn {
+            width: 44px; height: 44px; border-radius: 14px;
+            background: transparent; border: none;
+            color: var(--text3); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; transition: all 0.25s ease;
             position: relative;
         }
+        .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
+        .sidebar-btn.active { background: rgba(124,58,237,0.15); color: var(--primary-light); }
 
-        .form-group i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #667eea;
+        .sidebar-btn .tooltip {
+            position: absolute; left: calc(100% + 12px);
+            background: var(--bg3); border: 1px solid var(--border);
+            padding: 5px 10px; border-radius: 8px;
+            font-size: 0.75rem; white-space: nowrap; color: var(--text);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.2s; font-family: 'Outfit', sans-serif;
+        }
+        .sidebar-btn:hover .tooltip { opacity: 1; }
+
+        .sidebar-spacer { flex: 1; }
+
+        .sidebar-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 2px solid var(--primary); object-fit: cover;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .sidebar-avatar:hover { box-shadow: 0 0 15px rgba(124,58,237,0.5); }
+
+        /* Chat Main */
+        .chat-main {
+            flex: 1; display: flex; flex-direction: column;
+            min-width: 0;
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px 15px 15px 45px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s;
-            font-family: 'Poppins', sans-serif;
+        /* Chat Header */
+        .chat-topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 1.5rem; height: 62px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
+            flex-shrink: 0;
         }
 
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #667eea;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        .chat-topbar-left { display: flex; align-items: center; gap: 0.8rem; }
+
+        .room-icon {
+            width: 38px; height: 38px; border-radius: 12px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(167,139,250,0.1));
+            border: 1px solid rgba(124,58,237,0.2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
         }
 
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .room-info h4 { font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800; }
+        .room-info span { font-size: 0.72rem; color: var(--accent2); display: flex; align-items: center; gap: 4px; }
+        .room-info span::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--accent2); animation: pulse-dot 2s ease infinite; }
+        @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        .online-count {
+            display: flex; align-items: center; gap: 6px;
+            background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.15);
+            padding: 5px 12px; border-radius: 50px;
+            font-size: 0.75rem; color: var(--accent2); font-weight: 600;
+        }
+
+        /* Messages area */
+        .chat-messages {
+            flex: 1; overflow-y: auto;
+            padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 0.15rem;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 4px; }
+        .chat-messages::-webkit-scrollbar-track { background: transparent; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 2px; }
+
+        /* Date separator */
+        .date-sep {
+            display: flex; align-items: center; gap: 1rem;
+            margin: 1rem 0; color: var(--text3); font-size: 0.72rem;
+        }
+        .date-sep::before, .date-sep::after { content:''; flex:1; height:1px; background: var(--border); }
+
+        /* Message */
+        .msg {
+            display: flex; gap: 0.8rem; padding: 0.2rem 0.5rem;
+            border-radius: 12px; transition: background 0.2s;
+            animation: msg-in 0.3s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        .msg:hover { background: rgba(255,255,255,0.025); }
+
+        @keyframes msg-in {
+            from { opacity:0; transform: translateY(8px); }
+            to   { opacity:1; transform: translateY(0); }
+        }
+
+        .msg.own { flex-direction: row-reverse; }
+
+        .msg-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            object-fit: cover; border: 2px solid rgba(124,58,237,0.2);
+            flex-shrink: 0; cursor: pointer; transition: border-color 0.2s;
+            align-self: flex-end; margin-bottom: 2px;
+        }
+        .msg-avatar:hover { border-color: var(--primary-light); }
+
+        .msg-body { max-width: 65%; display: flex; flex-direction: column; gap: 2px; }
+        .msg.own .msg-body { align-items: flex-end; }
+
+        .msg-meta {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.72rem; color: var(--text3); padding: 0 4px;
+        }
+        .msg.own .msg-meta { flex-direction: row-reverse; }
+
+        .msg-name { font-weight: 700; color: var(--primary-light); font-size: 0.78rem; }
+        .msg.own .msg-name { color: var(--secondary); }
+
+        .msg-bubble {
+            padding: 10px 14px; border-radius: 18px;
+            font-size: 0.9rem; line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .msg-bubble.other {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-bottom-left-radius: 4px;
+            color: var(--text);
+        }
+
+        .msg-bubble.own {
+            background: linear-gradient(135deg, var(--primary), #9333EA);
             color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            width: 100%;
-            font-family: 'Poppins', sans-serif;
+            border-bottom-right-radius: 4px;
+            box-shadow: 0 4px 15px rgba(124,58,237,0.3);
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102,126,234,0.4);
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex; align-items: center; gap: 0.6rem;
+            padding: 0.5rem 1.5rem; color: var(--text3); font-size: 0.78rem;
+            min-height: 28px; flex-shrink: 0;
+        }
+        .typing-dots { display: flex; gap: 3px; }
+        .typing-dots span {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: var(--text3); animation: tdot 1.4s ease infinite;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes tdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
+        /* Input area */
+        .chat-input-area {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            background: rgba(10,10,15,0.9);
+            backdrop-filter: blur(20px);
+            flex-shrink: 0;
         }
 
-        .auth-footer {
-            text-align: center;
-            margin-top: 20px;
+        .chat-input-wrap {
+            display: flex; align-items: center; gap: 0.7rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border); border-radius: 50px;
+            padding: 8px 8px 8px 18px;
+            transition: border-color 0.25s, box-shadow 0.25s;
         }
 
-        .auth-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
+        .chat-input-wrap:focus-within {
+            border-color: rgba(124,58,237,0.4);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
         }
 
-        /* Main App Layout */
-        .app-container {
-            display: grid;
-            grid-template-columns: 280px 1fr 320px;
-            height: 100vh;
-            background: #f5f5f5;
+        #msgInput {
+            flex: 1; background: transparent; border: none;
+            color: var(--text); font-family: 'Outfit', sans-serif;
+            font-size: 0.92rem; outline: none;
+        }
+        #msgInput::placeholder { color: var(--text3); }
+
+        .send-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none; color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            box-shadow: 0 4px 12px rgba(124,58,237,0.4);
+        }
+        .send-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(124,58,237,0.55); }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* Rooms panel */
+        .rooms-panel {
+            width: 260px; background: var(--bg2);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            transition: all 0.3s ease;
         }
 
-        .sidebar {
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            padding: 20px;
+        .rooms-header {
+            padding: 1.2rem; border-bottom: 1px solid var(--border);
+        }
+        .rooms-header h4 { font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 0.8rem; }
+
+        .room-item {
+            display: flex; align-items: center; gap: 0.7rem;
+            padding: 0.7rem 1rem; border-radius: var(--radius);
+            cursor: pointer; transition: all 0.2s ease; margin: 0 0.5rem;
+        }
+        .room-item:hover { background: var(--surface2); }
+        .room-item.active { background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.2); }
+
+        .room-badge {
+            width: 34px; height: 34px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+
+        .room-item-info h5 { font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; }
+        .room-item-info span { font-size: 0.72rem; color: var(--text3); }
+
+        .unread-badge {
+            margin-left: auto; background: var(--primary);
+            color: white; font-size: 0.65rem; font-weight: 800;
+            width: 18px; height: 18px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Members panel */
+        .members-panel {
+            width: 220px; background: var(--bg2);
+            border-left: 1px solid var(--border);
+            padding: 1rem;
             overflow-y: auto;
         }
+        .members-panel h4 { font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--text3); margin-bottom: 1rem; }
 
-        .profile-card {
-            text-align: center;
-            padding: 20px 0;
-            border-bottom: 2px solid #f0f0f0;
-            margin-bottom: 20px;
+        .member-item {
+            display: flex; align-items: center; gap: 0.7rem;
+            padding: 0.5rem; border-radius: 10px; cursor: pointer;
+            transition: background 0.2s; margin-bottom: 0.3rem;
         }
+        .member-item:hover { background: var(--surface); }
 
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-            font-weight: 600;
+        .member-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(124,58,237,0.2); }
+        .member-item-info h5 { font-size: 0.82rem; font-weight: 600; }
+        .member-item-info span { font-size: 0.68rem; color: var(--text3); }
+
+        .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); margin-left: auto; flex-shrink: 0; box-shadow: 0 0 6px var(--accent2); }
+
+        /* Loading spinner */
+        .spinner {
+            width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white; border-radius: 50%;
+            animation: spin 0.6s linear infinite; display: inline-block;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .profile-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
+        /* Empty state */
+        .empty-msg {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 0.8rem;
+            color: var(--text3);
         }
+        .empty-msg i { font-size: 2.5rem; opacity: 0.3; }
+        .empty-msg p { font-size: 0.88rem; }
 
-        .profile-bio {
-            font-size: 12px;
-            color: #666;
-            margin: 10px 0;
+        /* Responsive */
+        @media (max-width: 900px) {
+            .members-panel { display: none; }
         }
-
-        .nav-item {
-            padding: 12px 15px;
-            margin: 5px 0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        @media (max-width: 650px) {
+            .rooms-panel { display: none; }
+            .chat-sidebar { width: 56px; }
+            .msg-body { max-width: 80%; }
         }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .chat-area {
-            display: flex;
-            flex-direction: column;
-            background: white;
-            margin: 20px;
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        .messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .message {
-            display: flex;
-            gap: 10px;
-            max-width: 70%;
-        }
-
-        .message.own {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        .message-content {
-            background: #f0f2f5;
-            padding: 10px 15px;
-            border-radius: 18px;
-        }
-
-        .message.own .message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .chat-input {
-            padding: 20px;
-            background: #f8f9fa;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input input {
-            flex: 1;
-            padding: 12px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 25px;
-            font-size: 14px;
-        }
-
-        .chat-input button {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        .notifications-panel {
-            background: white;
-            margin: 20px 20px 20px 0;
-            border-radius: 20px;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .notification-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @media (max-width: 420px) {
+            .auth-card { padding: 2rem 1.4rem; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <script>
-        // সুপাবেস কনফিগারেশন - তোমার ক্রেডেনশিয়ালস দাও
-        const SUPABASE_URL = 'https://htozsbirvogyrbuosujg.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
+
+<!-- ===== TOAST ===== -->
+<div id="toast"><span id="toastMsg"></span></div>
+
+<!-- ===========================
+     AUTH PAGE
+     =========================== -->
+<div class="page" id="authPage">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <i class="fas fa-seedling"></i>
+            <span>Campus<em>Circle</em></span>
+        </div>
+
+        <div class="auth-tabs">
+            <button class="auth-tab active" id="tabSignin" onclick="switchTab('signin')">Sign In</button>
+            <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <!-- SIGN IN FORM -->
+        <div id="signinForm">
+            <div class="form-group">
+                <label class="form-label">Student ID</label>
+                <input class="form-input" id="siStudentId" placeholder="e.g. 2022-CSE-045" type="text">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input class="form-input" id="siPassword" placeholder="••••••••" type="password">
+            </div>
+            <button class="auth-btn" id="signinBtn" onclick="handleSignIn()">
+                <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+            </button>
+        </div>
+
+        <!-- SIGN UP FORM -->
+        <div id="signupForm" style="display:none;">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input class="form-input" id="suName" placeholder="Your name" type="text">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Student ID</label>
+                    <input class="form-input" id="suStudentId" placeholder="2022-CSE-045" type="text">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Batch</label>
+                    <select class="form-input" id="suBatch">
+                        <option value="">Select</option>
+                        <option>28th</option>
+                        <option>29th</option>
+                        <option>30th</option>
+                        <option>31st</option>
+                        <option>32nd</option>
+                        <option>33rd</option>
+                        <option>34th</option>
+                        <option>35th</option>
+                        <option>36th</option>
+                        <option>37th</option>
+                        <option>38th</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select class="form-input" id="suDept">
+                        <option value="">Select</option>
+                        <option value="cse">CSE</option>
+                        <option value="bba">BBA</option>
+                        <option value="english">English</option>
+                        <option value="law">Law</option>
+                        <option value="economics">Economics</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Semester</label>
+                    <select class="form-input" id="suSemester">
+                        <option value="">Select</option>
+                        <option>1st</option><option>2nd</option><option>3rd</option>
+                        <option>4th</option><option>5th</option><option>6th</option>
+                        <option>7th</option><option>8th</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input class="form-input" id="suPassword" placeholder="Min 6 characters" type="password">
+            </div>
+            <button class="auth-btn" id="signupBtn" onclick="handleSignUp()">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+        </div>
+
+        <div class="divider"><span>Campus Circle • VU Students Only</span></div>
+        <p style="text-align:center;font-size:0.75rem;color:var(--text3);">
+            <a href="index.html" style="color:var(--primary-light);text-decoration:none;">← Back to Home</a>
+        </p>
+    </div>
+</div>
+
+<!-- ===========================
+     PROFILE PAGE
+     =========================== -->
+<div class="profile-page hidden" id="profilePage">
+    <div class="profile-header-bar">
+        <button class="back-btn" onclick="closeProfile()"><i class="fas fa-arrow-left"></i></button>
+        <h3>My Profile</h3>
+        <div style="margin-left:auto;display:flex;gap:0.5rem;">
+            <button class="back-btn" onclick="handleSignOut()" title="Sign Out" style="color:var(--error);border-color:rgba(248,113,113,0.2);">
+                <i class="fas fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </div>
+    <div class="profile-body">
+        <!-- Avatar -->
+        <div class="profile-avatar-section">
+            <div class="profile-avatar-wrap">
+                <img id="profileAvatarImg" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="Avatar">
+                <label class="avatar-edit-btn" for="avatarFileInput" title="Change photo">
+                    <i class="fas fa-camera"></i>
+                </label>
+                <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+            </div>
+            <div style="text-align:center;">
+                <div class="profile-name" id="profileNameDisplay">—</div>
+                <div class="profile-dept" id="profileDeptDisplay">—</div>
+            </div>
+        </div>
         
-        // সুপাবেস ক্লায়েন্ট ইনিশিয়ালাইজ
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // গ্লোবাল ভেরিয়েবল
-        let currentUser = null;
-
-        // ফর্ম টগল ফাংশন
-        window.showSignup = function() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('signupForm').style.display = 'block';
-        };
-
-        window.showLogin = function() {
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('signupForm').style.display = 'none';
-        };
-
-        // সাইনআপ ফাংশন - ডিবাগ করা ভার্সন
-        window.handleSignup = async function() {
-            try {
-                // ফর্ম থেকে ভ্যালু নেওয়া
-                const name = document.getElementById('signupName').value;
-                const studentId = document.getElementById('signupStudentId').value;
-                const email = document.getElementById('signupEmail').value;
-                const semester = document.getElementById('signupSemester').value;
-                const department = document.getElementById('signupDepartment').value;
-                const batch = document.getElementById('signupBatch').value;
-                const password = document.getElementById('signupPassword').value;
-                const confirmPass = document.getElementById('signupConfirmPassword').value;
-
-                // ভ্যালিডেশন
-                if(!name || !studentId || !email || !semester || !department || !batch || !password) {
-                    alert('সব ঘর পূরণ করুন');
-                    return;
-                }
-
-                if(password !== confirmPass) {
-                    alert('পাসওয়ার্ড মিলছে না');
-                    return;
-                }
-
-                if(password.length < 6) {
-                    alert('পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে');
-                    return;
-                }
-
-                console.log('Signup attempt with:', { name, studentId, email, semester, department, batch });
-
-                // ডাইরেক্ট ইনসার্ট - RLS বাইপাস করে
-                const { data, error } = await supabase
-                    .from('users')
-                    .insert([
-                        {
-                            name: name,
-                            student_id: studentId,
-                            email: email,
-                            semester: parseInt(semester),
-                            department: department,
-                            batch: batch,
-                            password_hash: btoa(password),
-                            bio: '',
-                            created_at: new Date().toISOString()
-                        }
-                    ])
-                    .select();
-
-                if(error) {
-                    console.error('Supabase error:', error);
-                    alert('এরর: ' + error.message);
-                    return;
-                }
-
-                console.log('Success:', data);
-                alert('অ্যাকাউন্ট তৈরি হয়েছে! এখন লগইন করুন');
-                
-                // ফর্ম ক্লিয়ার
-                document.getElementById('signupName').value = '';
-                document.getElementById('signupStudentId').value = '';
-                document.getElementById('signupEmail').value = '';
-                document.getElementById('signupPassword').value = '';
-                document.getElementById('signupConfirmPassword').value = '';
-                
-                // লগইন ফর্ম দেখাও
-                showLogin();
-                
-            } catch(error) {
-                console.error('ক্যাচ এরর:', error);
-                alert('এরর: ' + error.message);
-            }
-        };
-
-        // লগইন ফাংশন
-        window.handleLogin = async function() {
-            try {
-                const studentId = document.getElementById('loginStudentId').value;
-                const password = document.getElementById('loginPassword').value;
-
-                if(!studentId || !password) {
-                    alert('আইডি এবং পাসওয়ার্ড দিন');
-                    return;
-                }
-
-                console.log('Login attempt with:', studentId);
-
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('student_id', studentId)
-                    .eq('password_hash', btoa(password));
-
-                if(error) {
-                    console.error('Login error:', error);
-                    alert('লগইন এরর: ' + error.message);
-                    return;
-                }
-
-                if(!data || data.length === 0) {
-                    alert('ভুল আইডি বা পাসওয়ার্ড');
-                    return;
-                }
-
-                currentUser = data[0];
-                console.log('Logged in:', currentUser);
-
-                // হোম পেজ দেখাও
-                document.getElementById('authSection').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                
-                // প্রোফাইল লোড কর
-                loadUserProfile();
-                loadMessages();
-                
-            } catch(error) {
-                console.error('Login catch error:', error);
-                alert('লগইন এরর: ' + error.message);
-            }
-        };
-
-        // প্রোফাইল লোড
-        function loadUserProfile() {
-            if(!currentUser) return;
-
-            document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profileBio').textContent = currentUser.bio || 'কিছু লিখুন...';
-            document.getElementById('avatarText').textContent = currentUser.name.charAt(0).toUpperCase();
-            
-            const details = `
-                <p><i class="fas fa-id-card"></i> ${currentUser.student_id}</p>
-                <p><i class="fas fa-envelope"></i> ${currentUser.email}</p>
-                <p><i class="fas fa-layer-group"></i> Semester ${currentUser.semester}</p>
-                <p><i class="fas fa-building"></i> ${currentUser.department}</p>
-                <p><i class="fas fa-calendar-alt"></i> Batch ${currentUser.batch}</p>
-            `;
-            
-            document.getElementById('profileDetails').innerHTML = details;
-        }
-
-        // মেসেজ লোড
-        async function loadMessages() {
-            try {
-                const { data, error } = await supabase
-                    .from('messages')
-                    .select('*, users!inner(name, batch, department)')
-                    .order('created_at', { ascending: true });
-
-                if(error) {
-                    console.error('Message load error:', error);
-                    return;
-                }
-
-                displayMessages(data || []);
-            } catch(error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // মেসেজ দেখানো
-        function displayMessages(messages) {
-            const container = document.getElementById('messagesContainer');
-            container.innerHTML = '';
-
-            messages.forEach(msg => {
-                const isOwn = msg.user_id === currentUser?.id;
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${isOwn ? 'own' : ''}`;
-
-                const time = new Date(msg.created_at).toLocaleTimeString();
-                const senderName = msg.users?.name || 'Unknown';
-                const senderBatch = msg.users?.batch || '';
-
-                messageDiv.innerHTML = `
-                    <div class="message-content">
-                        ${!isOwn ? `<small>${senderName} (Batch ${senderBatch})</small><br>` : ''}
-                        <span>${msg.content}</span>
-                        <br><small>${time}</small>
-                    </div>
-                `;
-
-                container.appendChild(messageDiv);
-            });
-
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // মেসেজ পাঠানো
-        window.sendMessage = async function() {
-            const input = document.getElementById('messageInput');
-            const content = input.value.trim();
-
-            if(!content || !currentUser) return;
-
-            try {
-                const { error } = await supabase
-                    .from('messages')
-                    .insert([
-                        {
-                            user_id: currentUser.id,
-                            content: content,
-                            created_at: new Date().toISOString()
-                        }
-                    ]);
-
-                if(error) {
-                    console.error('Send error:', error);
-                    alert('মেসেজ পাঠানো যায়নি');
-                    return;
-                }
-
-                input.value = '';
-                loadMessages(); // রিলোড মেসেজ
-                
-            } catch(error) {
-                console.error('Error:', error);
-            }
-        };
-
-        // রিয়েল-টাইম সাবস্ক্রিপশন
-        function subscribeToMessages() {
-            supabase
-                .channel('messages-channel')
-                .on('postgres_changes', 
-                    { event: 'INSERT', schema: 'public', table: 'messages' },
-                    (payload) => {
-                        loadMessages(); // নতুন মেসেজ এলে রিলোড
-                    }
-                )
-                .subscribe();
-        }
-
-        // লগআউট
-        window.logout = function() {
-            currentUser = null;
-            document.getElementById('authSection').style.display = 'flex';
-            document.getElementById('mainApp').style.display = 'none';
-            
-            document.getElementById('loginStudentId').value = '';
-            document.getElementById('loginPassword').value = '';
-        };
-
-        // নোটিফিকেশন ফাংশন (সিম্পল ভার্সন)
-        window.switchTab = function(tab) {
-            if(tab === 'chat') {
-                document.getElementById('chatArea').style.display = 'flex';
-                document.getElementById('notificationsPanel').style.display = 'none';
-            } else {
-                document.getElementById('chatArea').style.display = 'none';
-                document.getElementById('notificationsPanel').style.display = 'block';
-                loadNotifications();
-            }
-        };
-
-        // নোটিফিকেশন লোড
-        async function loadNotifications() {
-            try {
-                const { data, error } = await supabase
-                    .from('notifications')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .limit(20);
-
-                if(error) throw error;
-
-                const container = document.getElementById('notificationsContainer');
-                container.innerHTML = '';
-
-                data.forEach(notif => {
-                    const div = document.createElement('div');
-                    div.className = 'notification-card';
-                    div.innerHTML = `
-                        <h4>${notif.title}</h4>
-                        <p>${notif.content}</p>
-                        <small>${new Date(notif.created_at).toLocaleString()}</small>
-                    `;
-                    container.appendChild(div);
-                });
-            } catch(error) {
-                console.error('Notification error:', error);
-            }
-        }
-
-        // পেইজ লোড হলে
-        window.onload = function() {
-            console.log('App loaded');
-            // এন্টার কি তে মেসেজ পাঠানো
-            document.getElementById('messageInput')?.addEventListener('keypress', function(e) {
-                if(e.key === 'Enter') sendMessage();
-            });
-        };
-    </script>
-
-    <!-- Auth Section -->
-    <div id="authSection" class="auth-container">
-        <!-- Login Form -->
-        <div id="loginForm" class="auth-card">
-            <div class="auth-header">
-                <i class="fas fa-graduation-cap"></i>
-                <h2>ক্যাম্পাস সার্কেলে স্বাগতম</h2>
-                <p>লগইন করে চ্যাট শুরু করুন</p>
-            </div>
-            <div class="auth-body">
-                <div class="form-group">
-                    <i class="fas fa-id-card"></i>
-                    <input type="text" id="loginStudentId" placeholder="স্টুডেন্ট আইডি">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="loginPassword" placeholder="পাসওয়ার্ড">
-                </div>
-                <button class="btn" onclick="handleLogin()">লগইন</button>
-                <div class="auth-footer">
-                    অ্যাকাউন্ট নেই? <a href="#" onclick="showSignup()">সাইনআপ করুন</a>
-                </div>
+        <!-- NEW: Bio Display Box - Name er niche stylish box -->
+        <div class="profile-bio-box" id="profileBioBox">
+            <div id="profileBioDisplay" class="profile-bio-empty">
+                <i class="fas fa-quote-left"></i> No bio yet. Add one below!
             </div>
         </div>
 
-        <!-- Signup Form -->
-        <div id="signupForm" class="auth-card" style="display: none;">
-            <div class="auth-header">
-                <i class="fas fa-user-plus"></i>
-                <h2>নতুন অ্যাকাউন্ট</h2>
-                <p>তথ্য দিন</p>
+        <!-- Stats -->
+        <div class="profile-stats-row">
+            <div class="pstat"><strong id="pMsgCount">0</strong><span>Messages</span></div>
+            <div class="pstat"><strong id="pBatch">—</strong><span>Batch</span></div>
+            <div class="pstat"><strong id="pSemester">—</strong><span>Semester</span></div>
+        </div>
+
+        <!-- Info chips -->
+        <div class="profile-info-grid">
+            <div class="info-chip"><label>Student ID</label><span id="pStudentId">—</span></div>
+            <div class="info-chip"><label>Department</label><span id="pDept">—</span></div>
+            <div class="info-chip"><label>Batch</label><span id="pBatchChip">—</span></div>
+            <div class="info-chip"><label>Semester</label><span id="pSemChip">—</span></div>
+        </div>
+
+        <!-- Bio Edit Section -->
+        <div class="bio-section">
+            <label>About Me (max 110 chars)</label>
+            <textarea class="bio-textarea" id="bioInput" rows="3" maxlength="110" placeholder="Write something about yourself..." oninput="updateBioCounter()"></textarea>
+            <div class="bio-counter" id="bioCounter">0 / 110</div>
+            <button class="save-bio-btn" onclick="saveBio()">
+                <i class="fas fa-check"></i> Save Bio
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ===========================
+     MAIN CHAT APP
+     =========================== -->
+<div id="chatApp" class="hidden">
+
+    <!-- Left sidebar icons -->
+    <div class="chat-sidebar">
+        <a href="index.html" class="sidebar-logo" title="Home">
+            <i class="fas fa-seedling"></i>
+        </a>
+
+        <div class="sidebar-divider"></div>
+
+        <button class="sidebar-btn active" id="btnGlobal" onclick="switchRoom('global')" title="">
+            <i class="fas fa-globe"></i>
+            <span class="tooltip">Global Chat</span>
+        </button>
+        <button class="sidebar-btn" id="btnDept" onclick="switchRoom('dept')" title="">
+            <i class="fas fa-building-columns"></i>
+            <span class="tooltip">Dept Chat</span>
+        </button>
+        <button class="sidebar-btn" id="btnBatch" onclick="switchRoom('batch')" title="">
+            <i class="fas fa-users"></i>
+            <span class="tooltip">Batch Chat</span>
+        </button>
+        <button class="sidebar-btn" id="btnHackathon" onclick="switchRoom('hackathon')" title="">
+            <i class="fas fa-trophy"></i>
+            <span class="tooltip">Hackathon</span>
+        </button>
+
+        <div class="sidebar-spacer"></div>
+
+        <button class="sidebar-btn" onclick="openProfile()" title="">
+            <img class="sidebar-avatar" id="sidebarAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="me">
+            <span class="tooltip">My Profile</span>
+        </button>
+    </div>
+
+    <!-- Rooms list panel -->
+    <div class="rooms-panel">
+        <div class="rooms-header">
+            <h4>Channels</h4>
+        </div>
+        <div style="padding:0.5rem 0;">
+            <div class="room-item active" id="room-global" onclick="switchRoom('global')">
+                <div class="room-badge" style="background:rgba(124,58,237,0.15);">🌐</div>
+                <div class="room-item-info"><h5>Global Campus</h5><span>All students</span></div>
             </div>
-            <div class="auth-body">
-                <div class="form-group">
-                    <i class="fas fa-user"></i>
-                    <input type="text" id="signupName" placeholder="পুরো নাম (রিয়েল নাম)">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-id-card"></i>
-                    <input type="text" id="signupStudentId" placeholder="স্টুডেন্ট আইডি">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="signupEmail" placeholder="ইমেইল">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-layer-group"></i>
-                    <select id="signupSemester">
-                        <option value="">সেমিস্টার নির্বাচন করুন</option>
-                        <option value="1">১ম সেমিস্টার</option>
-                        <option value="2">২য় সেমিস্টার</option>
-                        <option value="3">৩য় সেমিস্টার</option>
-                        <option value="4">৪র্থ সেমিস্টার</option>
-                        <option value="5">৫ম সেমিস্টার</option>
-                        <option value="6">৬ষ্ঠ সেমিস্টার</option>
-                        <option value="7">৭ম সেমিস্টার</option>
-                        <option value="8">৮ম সেমিস্টার</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-building"></i>
-                    <select id="signupDepartment">
-                        <option value="">ডিপার্টমেন্ট নির্বাচন করুন</option>
-                        <option value="CSE">Computer Science & Engineering</option>
-                        <option value="EEE">Electrical & Electronic Engineering</option>
-                        <option value="BBA">Business Administration</option>
-                        <option value="English">English</option>
-                        <option value="Law">Law</option>
-                        <option value="Pharmacy">Pharmacy</option>
-                        <option value="Civil">Civil Engineering</option>
-                        <option value="ME">Mechanical Engineering</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-calendar-alt"></i>
-                    <select id="signupBatch">
-                        <option value="">ব্যাচ নির্বাচন করুন</option>
-                        <option value="28">Batch 28</option>
-                        <option value="29">Batch 29</option>
-                        <option value="30">Batch 30</option>
-                        <option value="31">Batch 31</option>
-                        <option value="32">Batch 32</option>
-                        <option value="33">Batch 33</option>
-                        <option value="34">Batch 34</option>
-                        <option value="35">Batch 35</option>
-                        <option value="36">Batch 36</option>
-                        <option value="37">Batch 37</option>
-                        <option value="38">Batch 38</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="signupPassword" placeholder="পাসওয়ার্ড">
-                </div>
-                <div class="form-group">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="signupConfirmPassword" placeholder="আবার পাসওয়ার্ড">
-                </div>
-                <button class="btn" onclick="handleSignup()">সাইনআপ</button>
-                <div class="auth-footer">
-                    অ্যাকাউন্ট আছে? <a href="#" onclick="showLogin()">লগইন করুন</a>
-                </div>
+            <div class="room-item" id="room-dept" onclick="switchRoom('dept')">
+                <div class="room-badge" style="background:rgba(34,211,238,0.12);">🏛️</div>
+                <div class="room-item-info"><h5 id="deptRoomLabel">Department</h5><span>Your dept</span></div>
+            </div>
+            <div class="room-item" id="room-batch" onclick="switchRoom('batch')">
+                <div class="room-badge" style="background:rgba(244,114,182,0.12);">👥</div>
+                <div class="room-item-info"><h5 id="batchRoomLabel">Batch</h5><span>Your batch</span></div>
+            </div>
+            <div class="room-item" id="room-hackathon" onclick="switchRoom('hackathon')">
+                <div class="room-badge" style="background:rgba(251,191,36,0.12);">🏆</div>
+                <div class="room-item-info"><h5>Hackathon</h5><span>BD Hackathons</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Main App Section -->
-    <div id="mainApp" style="display: none;">
-        <div class="app-container">
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <div class="profile-card">
-                    <div class="avatar" id="profileAvatar">
-                        <span id="avatarText"></span>
-                    </div>
-                    <div class="profile-name" id="profileName"></div>
-                    <div class="profile-bio" id="profileBio"></div>
-                    <div class="profile-details" id="profileDetails"></div>
-                </div>
-
-                <div class="nav-item active" onclick="switchTab('chat')">
-                    <i class="fas fa-comments"></i> গ্লোবাল চ্যাট
-                </div>
-                <div class="nav-item" onclick="switchTab('notifications')">
-                    <i class="fas fa-bell"></i> নোটিফিকেশন
-                </div>
-                <div class="nav-item" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> লগআউট
+    <!-- Main chat column -->
+    <div class="chat-main">
+        <!-- Top bar -->
+        <div class="chat-topbar">
+            <div class="chat-topbar-left">
+                <div class="room-icon" id="roomIcon">🌐</div>
+                <div class="room-info">
+                    <h4 id="roomTitle">Global Campus</h4>
+                    <span id="roomOnline">Live</span>
                 </div>
             </div>
-
-            <!-- Chat Area -->
-            <div class="chat-area" id="chatArea">
-                <div class="chat-header" style="padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <h3><i class="fas fa-globe"></i> গ্লোবাল চ্যাট</h3>
-                    <p>সবাই মিলে কথা বলুন</p>
-                </div>
-                <div class="messages" id="messagesContainer"></div>
-                <div class="chat-input">
-                    <input type="text" id="messageInput" placeholder="মেসেজ লিখুন...">
-                    <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
-                </div>
+            <div class="online-count">
+                <i class="fas fa-circle" style="font-size:0.5rem;color:var(--accent2);"></i>
+                <span id="onlineCountText">—</span> online
             </div>
+        </div>
 
-            <!-- Notifications Panel -->
-            <div class="notifications-panel" id="notificationsPanel" style="display: none;">
-                <div class="panel-header">
-                    <h3><i class="fas fa-bullhorn"></i> নোটিফিকেশন</h3>
-                </div>
-                <div id="notificationsContainer"></div>
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="empty-msg" id="emptyState">
+                <i class="fas fa-comments"></i>
+                <p>No messages yet. Say something! 👋</p>
+            </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="typing-indicator" id="typingIndicator" style="display:none;">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+            <span id="typingText">Someone is typing...</span>
+        </div>
+
+        <!-- Input -->
+        <div class="chat-input-area">
+            <div class="chat-input-wrap">
+                <input type="text" id="msgInput" placeholder="Message Global Campus..." maxlength="500" onkeydown="handleMsgKey(event)" oninput="handleTyping()">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <script>
-        // শুরুতে অথ সেকশন দেখাও
-        document.getElementById('authSection').style.display = 'flex';
-    </script>
+    <!-- Members panel -->
+    <div class="members-panel">
+        <h4>Online Members</h4>
+        <div id="membersList"></div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+//  APP STATE
+// ============================================================
+let currentUser    = null;
+let currentProfile = null;
+let currentRoom    = 'global';
+let msgSubscription = null;
+let typingTimeout  = null;
+let allMessages    = [];
+let onlineMembers  = [];
+
+const ROOMS = {
+    global:    { icon:'🌐', title:'Global Campus', placeholder:'Message Global Campus...' },
+    dept:      { icon:'🏛️', title:'Department',    placeholder:'Message your department...' },
+    batch:     { icon:'👥', title:'Batch',          placeholder:'Message your batch...' },
+    hackathon: { icon:'🏆', title:'Hackathon BD',   placeholder:'Discuss hackathons...' }
+};
+
+// ============================================================
+//  TOAST
+// ============================================================
+function showToast(msg, type='success') {
+    const t  = document.getElementById('toast');
+    const tm = document.getElementById('toastMsg');
+    tm.textContent = msg;
+    t.className = `show ${type}`;
+    setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ============================================================
+//  AUTH TABS
+// ============================================================
+function switchTab(tab) {
+    document.getElementById('signinForm').style.display = tab==='signin' ? 'block' : 'none';
+    document.getElementById('signupForm').style.display = tab==='signup' ? 'block' : 'none';
+    document.getElementById('tabSignin').classList.toggle('active', tab==='signin');
+    document.getElementById('tabSignup').classList.toggle('active', tab==='signup');
+}
+
+// ============================================================
+//  SIGN UP
+// ============================================================
+async function handleSignUp() {
+    const name      = document.getElementById('suName').value.trim();
+    const studentId = document.getElementById('suStudentId').value.trim();
+    const batch     = document.getElementById('suBatch').value;
+    const dept      = document.getElementById('suDept').value;
+    const semester  = document.getElementById('suSemester').value;
+    const password  = document.getElementById('suPassword').value;
+
+    if (!name || !studentId || !batch || !dept || !semester || !password) {
+        return showToast('Please fill all fields!', 'error');
+    }
+    if (password.length < 6) return showToast('Password min 6 characters', 'error');
+
+    const btn = document.getElementById('signupBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Creating...';
+
+    // Use studentId as fake email for Supabase Auth
+    const fakeEmail = `${studentId.toLowerCase().replace(/[^a-z0-9]/g,'')}@campuscircle.vu`;
+
+    const { data, error } = await _supabase.auth.signUp({
+        email: fakeEmail,
+        password: password,
+        options: {
+            data: { name, student_id: studentId, department: dept, batch, semester }
+        }
+    });
+
+    if (error) {
+        showToast(error.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+        return;
+    }
+
+    // Insert profile
+    if (data.user) {
+        const { error: pErr } = await _supabase.from('profiles').insert({
+            id: data.user.id,
+            name, student_id: studentId,
+            department: dept, batch, semester,
+            avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${studentId}&backgroundColor=7c3aed`
+        });
+        if (pErr) console.warn('Profile insert:', pErr.message);
+    }
+
+    showToast('Account created! Signing you in...', 'success');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+
+    // Auto sign in
+    setTimeout(() => {
+        document.getElementById('siStudentId').value = studentId;
+        document.getElementById('siPassword').value = password;
+        switchTab('signin');
+        handleSignIn();
+    }, 800);
+}
+
+// ============================================================
+//  SIGN IN
+// ============================================================
+async function handleSignIn() {
+    const studentId = document.getElementById('siStudentId').value.trim();
+    const password  = document.getElementById('siPassword').value;
+
+    if (!studentId || !password) return showToast('Fill Student ID & Password', 'error');
+
+    const btn = document.getElementById('signinBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Signing in...';
+
+    const fakeEmail = `${studentId.toLowerCase().replace(/[^a-z0-9]/g,'')}@campuscircle.vu`;
+
+    const { data, error } = await _supabase.auth.signInWithPassword({
+        email: fakeEmail, password
+    });
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Sign In';
+
+    if (error) return showToast('Invalid Student ID or Password', 'error');
+
+    currentUser = data.user;
+    await loadProfile();
+    enterChat();
+}
+
+// ============================================================
+//  SIGN OUT
+// ============================================================
+async function handleSignOut() {
+    if (!confirm('Sign out?')) return;
+    if (msgSubscription) msgSubscription.unsubscribe();
+    await _supabase.auth.signOut();
+    currentUser = null; currentProfile = null;
+    closeProfile();
+    document.getElementById('chatApp').classList.add('hidden');
+    document.getElementById('authPage').classList.remove('hidden');
+    showToast('Signed out', 'success');
+}
+
+// ============================================================
+//  LOAD PROFILE
+// ============================================================
+async function loadProfile() {
+    if (!currentUser) return;
+    const { data, error } = await _supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+    if (error) { console.warn('Profile load:', error.message); return; }
+    currentProfile = data;
+    updateProfileUI();
+}
+
+function updateProfileUI() {
+    if (!currentProfile) return;
+    const p = currentProfile;
+
+    // Sidebar avatar
+    const avatarUrl = p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.student_id}&backgroundColor=7c3aed`;
+    document.getElementById('sidebarAvatar').src     = avatarUrl;
+    document.getElementById('profileAvatarImg').src  = avatarUrl;
+
+    document.getElementById('profileNameDisplay').textContent = p.name;
+    document.getElementById('profileDeptDisplay').textContent = `${p.department?.toUpperCase()} • Batch ${p.batch}`;
+    document.getElementById('pStudentId').textContent  = p.student_id;
+    document.getElementById('pDept').textContent       = p.department?.toUpperCase();
+    document.getElementById('pBatch').textContent      = p.batch;
+    document.getElementById('pBatchChip').textContent  = p.batch;
+    document.getElementById('pSemester').textContent   = p.semester;
+    document.getElementById('pSemChip').textContent    = p.semester;
+
+    // Bio display update
+    const bioDisplay = document.getElementById('profileBioDisplay');
+    if (p.bio && p.bio.trim() !== '') {
+        bioDisplay.className = 'profile-bio-text';
+        bioDisplay.innerHTML = `<i class="fas fa-quote-left" style="opacity:0.5; margin-right:5px;"></i>${escapeHtml(p.bio)}<i class="fas fa-quote-right" style="opacity:0.5; margin-left:5px;"></i>`;
+    } else {
+        bioDisplay.className = 'profile-bio-empty';
+        bioDisplay.innerHTML = '<i class="fas fa-quote-left"></i> No bio yet. Add one below!';
+    }
+
+    if (p.bio) {
+        document.getElementById('bioInput').value = p.bio;
+        updateBioCounter();
+    }
+
+    // Room labels
+    document.getElementById('deptRoomLabel').textContent = p.department?.toUpperCase() || 'Dept';
+    document.getElementById('batchRoomLabel').textContent = `Batch ${p.batch}` || 'Batch';
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+//  ENTER CHAT
+// ============================================================
+function enterChat() {
+    document.getElementById('authPage').classList.add('hidden');
+    document.getElementById('chatApp').classList.remove('hidden');
+    switchRoom('global');
+    loadOnlineMembers();
+    showToast(`Welcome back, ${currentProfile?.name || 'Student'}! 👋`, 'success');
+}
+
+// ============================================================
+//  ROOM SWITCHING
+// ============================================================
+function switchRoom(room) {
+    currentRoom = room;
+    allMessages = [];
+    document.getElementById('chatMessages').innerHTML = `
+        <div class="empty-msg" id="emptyState">
+            <i class="fas fa-comments"></i>
+            <p>No messages yet. Say something! 👋</p>
+        </div>`;
+
+    // Update sidebar buttons
+    ['global','dept','batch','hackathon'].forEach(r => {
+        document.getElementById(`btn${r.charAt(0).toUpperCase()+r.slice(1)}`)?.classList?.remove('active');
+        document.getElementById(`room-${r}`)?.classList?.remove('active');
+    });
+    document.getElementById(`btn${room.charAt(0).toUpperCase()+room.slice(1)}`)?.classList?.add('active');
+    document.getElementById(`room-${room}`)?.classList?.add('active');
+
+    // Update header
+    const rd = ROOMS[room] || ROOMS.global;
+    document.getElementById('roomIcon').textContent     = rd.icon;
+    document.getElementById('roomTitle').textContent    = getRoomName(room);
+    document.getElementById('msgInput').placeholder     = rd.placeholder;
+
+    // Unsubscribe old
+    if (msgSubscription) msgSubscription.unsubscribe();
+
+    // Load + subscribe
+    loadMessages();
+    subscribeMessages();
+}
+
+function getRoomName(room) {
+    if (room === 'dept')  return `${currentProfile?.department?.toUpperCase() || 'Department'} Chat`;
+    if (room === 'batch') return `Batch ${currentProfile?.batch || ''} Chat`;
+    return ROOMS[room]?.title || room;
+}
+
+function getRoomChannel(room) {
+    if (room === 'dept')  return `dept_${currentProfile?.department || 'general'}`;
+    if (room === 'batch') return `batch_${currentProfile?.batch || 'general'}`;
+    return room;
+}
+
+// ============================================================
+//  LOAD MESSAGES
+// ============================================================
+async function loadMessages() {
+    const channel = getRoomChannel(currentRoom);
+    const { data, error } = await _supabase
+        .from('messages')
+        .select('*, profiles(name, avatar_url, department, batch)')
+        .eq('room', channel)
+        .order('created_at', { ascending: true })
+        .limit(80);
+
+    if (error) { console.warn('Load messages:', error.message); return; }
+
+    allMessages = data || [];
+    renderAllMessages();
+}
+
+function renderAllMessages() {
+    const container = document.getElementById('chatMessages');
+    if (!allMessages.length) {
+        container.innerHTML = `<div class="empty-msg" id="emptyState"><i class="fas fa-comments"></i><p>No messages yet. Say something! 👋</p></div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    let lastDate = null;
+
+    allMessages.forEach(msg => {
+        const msgDate = new Date(msg.created_at).toLocaleDateString('en-BD', { day:'numeric', month:'long', year:'numeric' });
+        if (msgDate !== lastDate) {
+            const sep = document.createElement('div');
+            sep.className = 'date-sep';
+            sep.innerHTML = `<span>${msgDate}</span>`;
+            container.appendChild(sep);
+            lastDate = msgDate;
+        }
+        container.appendChild(buildMsgEl(msg));
+    });
+
+    scrollBottom();
+}
+
+function buildMsgEl(msg) {
+    const isOwn   = msg.user_id === currentUser?.id;
+    const profile = msg.profiles;
+    const name    = profile?.name || 'Student';
+    const avatar  = profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.user_id}&backgroundColor=7c3aed`;
+    const time    = new Date(msg.created_at).toLocaleTimeString('en-BD', { hour:'2-digit', minute:'2-digit' });
+
+    const div = document.createElement('div');
+    div.className = `msg ${isOwn ? 'own' : ''}`;
+    div.dataset.msgId = msg.id;
+
+    div.innerHTML = `
+        <img class="msg-avatar" src="${avatar}" alt="${name}" onclick="viewMemberProfile('${msg.user_id}')">
+        <div class="msg-body">
+            <div class="msg-meta">
+                <span class="msg-name">${isOwn ? 'You' : name}</span>
+                <span>${time}</span>
+            </div>
+            <div class="msg-bubble ${isOwn ? 'own' : 'other'}">${escapeHtml(msg.content)}</div>
+        </div>`;
+    return div;
+}
+
+function scrollBottom() {
+    const c = document.getElementById('chatMessages');
+    setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
+}
+
+// ============================================================
+//  REALTIME SUBSCRIPTION
+// ============================================================
+function subscribeMessages() {
+    const channel = getRoomChannel(currentRoom);
+    msgSubscription = _supabase
+        .channel(`room-${channel}`)
+        .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `room=eq.${channel}`
+        }, async (payload) => {
+            // Fetch full message with profile
+            const { data } = await _supabase
+                .from('messages')
+                .select('*, profiles(name, avatar_url, department, batch)')
+                .eq('id', payload.new.id)
+                .single();
+
+            if (data) {
+                // Remove empty state
+                document.getElementById('emptyState')?.remove();
+                allMessages.push(data);
+                const container = document.getElementById('chatMessages');
+                container.appendChild(buildMsgEl(data));
+                scrollBottom();
+            }
+        })
+        .subscribe();
+}
+
+// ============================================================
+//  SEND MESSAGE
+// ============================================================
+async function sendMessage() {
+    const input = document.getElementById('msgInput');
+    const content = input.value.trim();
+    if (!content || !currentUser) return;
+
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = true;
+    input.value = '';
+
+    const channel = getRoomChannel(currentRoom);
+    const { error } = await _supabase.from('messages').insert({
+        user_id: currentUser.id,
+        room: channel,
+        content: content
+    });
+
+    btn.disabled = false;
+    if (error) { showToast('Failed to send', 'error'); input.value = content; }
+}
+
+function handleMsgKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+// Typing indicator (visual only — no DB)
+function handleTyping() {
+    // Could extend with Supabase presence if needed
+}
+
+// ============================================================
+//  ONLINE MEMBERS
+// ============================================================
+async function loadOnlineMembers() {
+    const { data } = await _supabase
+        .from('profiles')
+        .select('id, name, avatar_url, department, batch')
+        .limit(30);
+
+    onlineMembers = data || [];
+    renderMembers();
+    document.getElementById('onlineCountText').textContent = onlineMembers.length;
+}
+
+function renderMembers() {
+    const list = document.getElementById('membersList');
+    list.innerHTML = onlineMembers.map(m => `
+        <div class="member-item" onclick="viewMemberProfile('${m.id}')">
+            <img src="${m.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.id}&backgroundColor=7c3aed`}" alt="${m.name}">
+            <div class="member-item-info">
+                <h5>${m.name}</h5>
+                <span>${m.department?.toUpperCase()} • ${m.batch}</span>
+            </div>
+            <div class="online-dot"></div>
+        </div>
+    `).join('');
+
+    document.getElementById('pMsgCount').textContent = allMessages.filter(m => m.user_id === currentUser?.id).length;
+}
+
+async function viewMemberProfile(userId) {
+    // Mini profile popup (can extend)
+    const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
+    if (!data) return;
+    const isMe = userId === currentUser?.id;
+    if (isMe) { openProfile(); return; }
+    showToast(`${data.name} • ${data.department?.toUpperCase()} • Batch ${data.batch}`, 'success');
+}
+
+// ============================================================
+//  PROFILE PAGE
+// ============================================================
+function openProfile() {
+    document.getElementById('profilePage').classList.remove('hidden');
+    updateProfileUI();
+}
+
+function closeProfile() {
+    document.getElementById('profilePage').classList.add('hidden');
+}
+
+function updateBioCounter() {
+    const val = document.getElementById('bioInput').value.length;
+    const el  = document.getElementById('bioCounter');
+    el.textContent = `${val} / 110`;
+    el.classList.toggle('warn', val > 100);
+}
+
+async function saveBio() {
+    const bio = document.getElementById('bioInput').value.trim();
+    if (bio.length > 110) return showToast('Bio max 110 characters', 'error');
+
+    const { error } = await _supabase
+        .from('profiles')
+        .update({ bio })
+        .eq('id', currentUser.id);
+
+    if (error) return showToast('Failed to save bio', 'error');
+    currentProfile.bio = bio;
+    updateProfileUI();
+    showToast('Bio saved! ✅', 'success');
+}
+
+async function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) return showToast('Image must be under 2MB', 'error');
+
+    showToast('Uploading...', 'success');
+
+    const ext      = file.name.split('.').pop();
+    const fileName = `${currentUser.id}.${ext}`;
+
+    const { error: upErr } = await _supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
+
+    if (upErr) return showToast('Upload failed: ' + upErr.message, 'error');
+
+    const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(fileName);
+    const avatarUrl = urlData.publicUrl + '?t=' + Date.now();
+
+    const { error: updateErr } = await _supabase
+        .from('profiles')
+        .update({ avatar_url: avatarUrl })
+        .eq('id', currentUser.id);
+
+    if (updateErr) return showToast('Failed to update profile', 'error');
+
+    currentProfile.avatar_url = avatarUrl;
+    updateProfileUI();
+    showToast('Profile photo updated! 🎉', 'success');
+}
+
+// ============================================================
+//  AUTO AUTH CHECK
+// ============================================================
+async function initApp() {
+    const { data: { session } } = await _supabase.auth.getSession();
+
+    if (session?.user) {
+        currentUser = session.user;
+        await loadProfile();
+        if (currentProfile) {
+            enterChat();
+        } else {
+            document.getElementById('authPage').classList.remove('hidden');
+        }
+    } else {
+        document.getElementById('authPage').classList.remove('hidden');
+    }
+}
+
+// Additional SQL needed — add 'room' column to messages
+// ALTER TABLE messages ADD COLUMN IF NOT EXISTS room text DEFAULT 'global';
+
+initApp();
+</script>
 </body>
 </html>
