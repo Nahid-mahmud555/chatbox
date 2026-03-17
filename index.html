@@ -39,6 +39,26 @@
             --radius2: 22px;
         }
 
+        html[data-theme="light"] {
+            --primary: #7C3AED;
+            --primary-light: #A78BFA;
+            --secondary: #F472B6;
+            --accent: #22D3EE;
+            --accent2: #34D399;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --bg: #F9F7FF;
+            --bg2: #F3F0FF;
+            --bg3: #EDE9FE;
+            --surface: rgba(0,0,0,0.04);
+            --surface2: rgba(0,0,0,0.07);
+            --border: rgba(0,0,0,0.1);
+            --border2: rgba(124,58,237,0.25);
+            --text: #1a1a1a;
+            --text2: #4B5563;
+            --text3: #8B92A8;
+        }
+
         *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
         html { scroll-behavior: smooth; }
 
@@ -48,6 +68,7 @@
             color: var(--text);
             min-height: 100vh;
             overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         body::before {
@@ -76,7 +97,95 @@
         #toast.show { transform: translateX(-50%) translateY(0); }
         #toast.success { border-color: rgba(52,211,153,0.4); color: var(--accent2); }
         #toast.error { border-color: rgba(239,68,68,0.4); color: var(--danger); }
-        #toast.warn { border-color: rgba(245,158,11,0.4); color: var(--warning); }
+
+        /* ===== LIVE NOTIFICATION POPUP ===== */
+        .live-notify-popup {
+            position: fixed; bottom: 30px; right: 30px;
+            background: var(--bg3); border: 2px solid var(--primary);
+            border-radius: var(--radius2); padding: 1.2rem;
+            max-width: 350px; z-index: 10000;
+            box-shadow: 0 10px 40px rgba(124,58,237,0.4);
+            animation: popup-slide 0.4s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes popup-slide {
+            from { opacity:0; transform: translateX(400px) translateY(0); }
+            to   { opacity:1; transform: translateX(0) translateY(0); }
+        }
+
+        .live-notify-popup.exit {
+            animation: popup-exit 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+
+        @keyframes popup-exit {
+            from { opacity:1; transform: translateX(0) translateY(0); }
+            to   { opacity:0; transform: translateX(400px) translateY(0); }
+        }
+
+        .notify-popup-header {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem; border-bottom: 1px solid var(--border);
+        }
+
+        .notify-popup-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .notify-popup-header-text h4 {
+            font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800;
+            margin-bottom: 0.2rem;
+        }
+
+        .notify-popup-header-text span {
+            font-size: 0.72rem; color: var(--text3);
+        }
+
+        .notify-popup-close {
+            margin-left: auto; background: none; border: none;
+            color: var(--text2); cursor: pointer; font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .notify-popup-close:hover { color: var(--text); }
+
+        .notify-popup-title {
+            font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700;
+            margin-bottom: 0.5rem; color: var(--text);
+        }
+
+        .notify-popup-message {
+            font-size: 0.85rem; line-height: 1.5;
+            color: var(--text2); margin-bottom: 0.8rem;
+        }
+
+        .notify-popup-meta {
+            display: flex; gap: 0.5rem; flex-wrap: wrap;
+            font-size: 0.72rem; color: var(--text3);
+        }
+
+        .notify-popup-badge {
+            background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.3);
+            padding: 2px 8px; border-radius: 12px;
+        }
+
+        /* ===== THEME TOGGLE ===== */
+        .theme-toggle {
+            position: fixed; bottom: 30px; left: 30px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none; color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; z-index: 999;
+            box-shadow: 0 4px 15px rgba(124,58,237,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover { transform: scale(1.1); }
 
         /* ===== PAGE ===== */
         .page {
@@ -87,6 +196,76 @@
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
         .page.hidden { opacity:0; pointer-events:none; transform: scale(0.97); }
+
+        /* ===== JOIN MODAL ===== */
+        .join-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 110; padding: 20px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .join-modal.show { opacity: 1; pointer-events: auto; }
+
+        .join-modal-content {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: var(--radius2); padding: 2rem;
+            max-width: 500px; width: 100%;
+            animation: modal-pop 0.3s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes modal-pop {
+            from { opacity:0; transform: scale(0.95); }
+            to   { opacity:1; transform: scale(1); }
+        }
+
+        .join-modal-header {
+            margin-bottom: 1.5rem;
+        }
+        .join-modal-header h3 { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 800; }
+
+        .rooms-join-list {
+            display: grid; gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .room-join-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem; background: var(--surface);
+            border: 1px solid var(--border); border-radius: var(--radius);
+            transition: all 0.2s;
+        }
+
+        .room-join-item:hover { background: var(--surface2); }
+
+        .room-join-info {
+            display: flex; align-items: center; gap: 0.8rem;
+        }
+
+        .room-join-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(167,139,250,0.1));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .room-join-text h4 { font-size: 0.95rem; font-weight: 700; }
+        .room-join-text span { font-size: 0.75rem; color: var(--text3); }
+
+        .join-btn {
+            padding: 8px 16px; background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; border: none; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; font-family: 'Nunito', sans-serif;
+        }
+
+        .join-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+
+        .join-btn.joined {
+            background: rgba(52,211,153,0.2); color: var(--accent2);
+            border: 1px solid rgba(52,211,153,0.4);
+        }
+
+        .join-btn.joined:hover { transform: none; }
 
         /* ===== AUTH CARD ===== */
         .auth-card {
@@ -145,6 +324,8 @@
         .form-input::placeholder { color: var(--text3); }
         select.form-input option { background: #1a1a2e; }
 
+        html[data-theme="light"] select.form-input option { background: white; color: black; }
+
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
 
         .auth-btn {
@@ -159,10 +340,6 @@
         }
         .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(124,58,237,0.5); }
         .auth-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-        .divider { display: flex; align-items: center; gap: 1rem; margin: 1.2rem 0; }
-        .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
-        .divider span { font-size: 0.75rem; color: var(--text3); }
 
         /* ===== PROFILE PAGE ===== */
         .profile-page {
@@ -179,6 +356,11 @@
             border-bottom: 1px solid var(--border);
             background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
         }
+
+        html[data-theme="light"] .profile-header-bar {
+            background: rgba(249,247,255,0.95);
+        }
+
         .back-btn {
             background: rgba(255,255,255,0.06); border: 1px solid var(--border);
             color: var(--text2); width: 36px; height: 36px; border-radius: 50%;
@@ -275,7 +457,7 @@
 
         .action-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
-        /* ===== MODAL ===== */
+        /* ===== NOTIFY MODAL ===== */
         .modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.7);
             display: flex; align-items: center; justify-content: center;
@@ -291,11 +473,6 @@
             animation: modal-pop 0.3s cubic-bezier(0.16,1,0.3,1) both;
         }
 
-        @keyframes modal-pop {
-            from { opacity:0; transform: scale(0.95); }
-            to   { opacity:1; transform: scale(1); }
-        }
-
         .modal-header {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 1.5rem;
@@ -307,7 +484,7 @@
         }
         .modal-close:hover { color: var(--text); }
 
-        /* ===== MAIN CHAT LAYOUT ===== */
+        /* ===== MAIN CHAT ===== */
         #chatApp {
             display: flex; height: 100vh;
             position: relative; z-index: 1;
@@ -321,6 +498,10 @@
             padding: 1rem 0; gap: 0.3rem;
             backdrop-filter: blur(20px);
             z-index: 10;
+        }
+
+        html[data-theme="light"] .chat-sidebar {
+            background: rgba(249,247,255,0.95);
         }
 
         .sidebar-logo {
@@ -377,6 +558,10 @@
             flex-shrink: 0;
         }
 
+        html[data-theme="light"] .chat-topbar {
+            background: rgba(249,247,255,0.9);
+        }
+
         .chat-topbar-left { display: flex; align-items: center; gap: 0.8rem; }
 
         .room-icon {
@@ -389,8 +574,20 @@
 
         .room-info h4 { font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 800; }
         .room-info span { font-size: 0.72rem; color: var(--accent2); display: flex; align-items: center; gap: 4px; }
-        .room-info span::before { content:''; display:inline-block; width:6px; height:6px; border-radius:50%; background: var(--accent2); animation: pulse-dot 2s ease infinite; }
-        @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+        .join-room-btn {
+            padding: 8px 16px; background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white; border: none; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            transition: all 0.2s; font-family: 'Nunito', sans-serif;
+        }
+
+        .join-room-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(124,58,237,0.3); }
+
+        .join-room-btn.joined {
+            background: rgba(52,211,153,0.2); color: var(--accent2);
+            border: 1px solid rgba(52,211,153,0.4);
+        }
 
         .online-count {
             display: flex; align-items: center; gap: 6px;
@@ -476,6 +673,10 @@
             background: rgba(10,10,15,0.9);
             backdrop-filter: blur(20px);
             flex-shrink: 0;
+        }
+
+        html[data-theme="light"] .chat-input-area {
+            background: rgba(249,247,255,0.9);
         }
 
         .chat-input-wrap {
@@ -587,10 +788,16 @@
             .auth-card { padding: 2rem 1.4rem; }
             .form-row { grid-template-columns: 1fr; }
             .profile-info-grid { grid-template-columns: 1fr; }
+            .theme-toggle { width: 45px; height: 45px; }
         }
     </style>
 </head>
 <body>
+
+<!-- ===== THEME TOGGLE ===== -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">
+    <i class="fas fa-moon"></i>
+</button>
 
 <!-- ===== TOAST ===== -->
 <div id="toast"><span id="toastMsg"></span></div>
@@ -673,11 +880,20 @@
                 <i class="fas fa-user-plus"></i> Create Account
             </button>
         </div>
+    </div>
+</div>
 
-        <div class="divider"><span>Campus Circle • VU Students Only</span></div>
-        <p style="text-align:center;font-size:0.75rem;color:var(--text3);">
-            <a href="index.html" style="color:var(--primary-light);text-decoration:none;">← Back to Home</a>
-        </p>
+<!-- ===== JOIN MODAL ===== -->
+<div class="join-modal" id="joinModal">
+    <div class="join-modal-content">
+        <div class="join-modal-header">
+            <h3>🚀 Join Channels</h3>
+        </div>
+        <p style="color: var(--text2); margin-bottom: 1.2rem; font-size: 0.9rem;">Select channels to join and start chatting with your community!</p>
+        <div class="rooms-join-list" id="roomsJoinList"></div>
+        <button class="auth-btn" onclick="closeJoinModal()" style="width: 100%;">
+            <i class="fas fa-check"></i> Done
+        </button>
     </div>
 </div>
 
@@ -696,7 +912,6 @@
         </div>
     </div>
     <div class="profile-body">
-        <!-- Avatar -->
         <div class="profile-section">
             <div class="profile-avatar-section">
                 <div class="profile-avatar-wrap">
@@ -712,7 +927,6 @@
                 </div>
             </div>
 
-            <!-- Stats -->
             <div class="profile-stats-row">
                 <div class="pstat"><strong id="pMsgCount">0</strong><span>Messages</span></div>
                 <div class="pstat"><strong id="pBatch">—</strong><span>Batch</span></div>
@@ -720,7 +934,6 @@
             </div>
         </div>
 
-        <!-- Info -->
         <div class="profile-section">
             <div class="profile-section-title">📋 Basic Information</div>
             <div class="profile-info-grid">
@@ -731,7 +944,6 @@
             </div>
         </div>
 
-        <!-- Bio -->
         <div class="profile-section">
             <div class="profile-section-title">✍️ About Me</div>
             <div class="bio-section">
@@ -746,7 +958,6 @@
             </div>
         </div>
 
-        <!-- Notifications -->
         <div class="profile-section">
             <div class="profile-section-title">🔔 My Notifications</div>
             <div id="notificationsContainer" style="font-size:0.9rem;color:var(--text3);padding:1rem;text-align:center;">
@@ -756,58 +967,74 @@
     </div>
 </div>
 
-<!-- ===== NOTIFY MODAL ===== -->
+<!-- ===== NOTIFY MODAL (ENHANCED) ===== -->
 <div class="modal" id="notifyModal">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>📢 Send Notice</h3>
+            <h3>📢 Send Announcement</h3>
             <button class="modal-close" onclick="closeModal('notifyModal')">&times;</button>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Notice Title</label>
+            <label class="form-label">Announcement Title</label>
             <input class="form-input" id="noticeTitle" placeholder="e.g. Exam Schedule Update">
         </div>
 
         <div class="form-group">
             <label class="form-label">Message</label>
-            <textarea class="bio-textarea" id="noticeMessage" rows="4" placeholder="Write your notice..."></textarea>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">Target Batch</label>
-                <select class="form-input" id="targetBatch">
-                    <option value="">All Batches</option>
-                    <option>2020</option><option>2021</option>
-                    <option>2022</option><option>2023</option><option>2024</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Target Department</label>
-                <select class="form-input" id="targetDept">
-                    <option value="">All Departments</option>
-                    <option value="cse">CSE</option>
-                    <option value="bba">BBA</option>
-                    <option value="english">English</option>
-                    <option value="law">Law</option>
-                    <option value="economics">Economics</option>
-                </select>
-            </div>
+            <textarea class="bio-textarea" id="noticeMessage" rows="4" placeholder="Write your announcement..."></textarea>
         </div>
 
         <div class="form-group">
-            <label class="form-label">Target Semester</label>
-            <select class="form-input" id="targetSemester">
-                <option value="">All Semesters</option>
-                <option>1st</option><option>2nd</option><option>3rd</option>
-                <option>4th</option><option>5th</option><option>6th</option>
-                <option>7th</option><option>8th</option>
-            </select>
+            <label class="form-label">Send To (Choose Options)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.8rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: var(--radius);">
+                    <input type="radio" name="notifyType" value="all" checked onchange="updateNotifyForm()"> 
+                    <span style="font-size: 0.9rem;">All Students</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: var(--radius);">
+                    <input type="radio" name="notifyType" value="specific" onchange="updateNotifyForm()"> 
+                    <span style="font-size: 0.9rem;">Specific Groups</span>
+                </label>
+            </div>
         </div>
 
-        <button class="auth-btn" onclick="sendNotice()">
-            <i class="fas fa-paper-plane"></i> Send Notice
+        <div id="specificFilters" style="display: none;">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Target Batch (Optional)</label>
+                    <select class="form-input" id="targetBatch">
+                        <option value="">All Batches</option>
+                        <option>2020</option><option>2021</option>
+                        <option>2022</option><option>2023</option><option>2024</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target Department (Optional)</label>
+                    <select class="form-input" id="targetDept">
+                        <option value="">All Departments</option>
+                        <option value="cse">CSE</option>
+                        <option value="bba">BBA</option>
+                        <option value="english">English</option>
+                        <option value="law">Law</option>
+                        <option value="economics">Economics</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Target Semester (Optional)</label>
+                <select class="form-input" id="targetSemester">
+                    <option value="">All Semesters</option>
+                    <option>1st</option><option>2nd</option><option>3rd</option>
+                    <option>4th</option><option>5th</option><option>6th</option>
+                    <option>7th</option><option>8th</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="auth-btn" onclick="sendNotice()" style="width: 100%; margin-top: 1rem;">
+            <i class="fas fa-paper-plane"></i> Send Announcement
         </button>
     </div>
 </div>
@@ -850,26 +1077,9 @@
     <!-- Rooms Panel -->
     <div class="rooms-panel">
         <div class="rooms-header">
-            <h4>Channels</h4>
+            <h4>My Channels</h4>
         </div>
-        <div style="padding:0.5rem 0;">
-            <div class="room-item active" id="room-global" onclick="switchRoom('global')">
-                <div class="room-badge" style="background:rgba(124,58,237,0.15);">🌐</div>
-                <div class="room-item-info"><h5>Global Campus</h5><span>All students</span></div>
-            </div>
-            <div class="room-item" id="room-dept" onclick="switchRoom('dept')">
-                <div class="room-badge" style="background:rgba(34,211,238,0.12);">🏛️</div>
-                <div class="room-item-info"><h5 id="deptRoomLabel">Department</h5><span>Your dept</span></div>
-            </div>
-            <div class="room-item" id="room-batch" onclick="switchRoom('batch')">
-                <div class="room-badge" style="background:rgba(244,114,182,0.12);">👥</div>
-                <div class="room-item-info"><h5 id="batchRoomLabel">Batch</h5><span>Your batch</span></div>
-            </div>
-            <div class="room-item" id="room-hackathon" onclick="switchRoom('hackathon')">
-                <div class="room-badge" style="background:rgba(251,191,36,0.12);">🏆</div>
-                <div class="room-item-info"><h5>Hackathon</h5><span>BD Hackathons</span></div>
-            </div>
-        </div>
+        <div style="padding:0.5rem 0;" id="myRoomsList"></div>
     </div>
 
     <!-- Main Chat -->
@@ -882,6 +1092,9 @@
                     <span id="roomOnline">Live</span>
                 </div>
             </div>
+            <button class="join-room-btn" id="roomJoinBtn" onclick="toggleRoomJoin()">
+                Join Room
+            </button>
             <div class="online-count">
                 <i class="fas fa-circle" style="font-size:0.5rem;color:var(--accent2);"></i>
                 <span id="onlineCountText">—</span> online
@@ -923,6 +1136,8 @@ let msgSubscription = null;
 let allMessages    = [];
 let onlineMembers  = [];
 let allNotifications = [];
+let joinedRooms    = ['global'];
+let notifyInterval = null;
 
 const ROOMS = {
     global:    { icon:'🌐', title:'Global Campus', placeholder:'Message Global Campus...' },
@@ -930,6 +1145,29 @@ const ROOMS = {
     batch:     { icon:'👥', title:'Batch', placeholder:'Message your batch...' },
     hackathon: { icon:'🏆', title:'Hackathon BD', placeholder:'Discuss hackathons...' }
 };
+
+// ============================================================
+//  THEME TOGGLE
+// ============================================================
+function toggleTheme() {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const btn = document.querySelector('.theme-toggle i');
+    btn.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+}
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
 
 // ============================================================
 //  TOAST
@@ -940,6 +1178,38 @@ function showToast(msg, type='success') {
     tm.textContent = msg;
     t.className = `show ${type}`;
     setTimeout(() => { t.className = ''; }, 3000);
+}
+
+// ============================================================
+//  LIVE NOTIFICATION POPUP
+// ============================================================
+function showLiveNotification(notice) {
+    const container = document.createElement('div');
+    container.className = 'live-notify-popup';
+    container.innerHTML = `
+        <div class="notify-popup-header">
+            <div class="notify-popup-icon">📢</div>
+            <div class="notify-popup-header-text">
+                <h4>New Announcement!</h4>
+                <span>Just now</span>
+            </div>
+            <button class="notify-popup-close" onclick="this.parentElement.parentElement.classList.add('exit'); setTimeout(() => this.parentElement.parentElement.remove(), 400);">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notify-popup-title">${escapeHtml(notice.title)}</div>
+        <div class="notify-popup-message">${escapeHtml(notice.message)}</div>
+        <div class="notify-popup-meta">
+            ${notice.target_batch ? `<div class="notify-popup-badge">Batch: ${notice.target_batch}</div>` : ''}
+            ${notice.target_dept ? `<div class="notify-popup-badge">Dept: ${notice.target_dept.toUpperCase()}</div>` : ''}
+            ${notice.target_semester ? `<div class="notify-popup-badge">Sem: ${notice.target_semester}</div>` : ''}
+        </div>
+    `;
+    document.body.appendChild(container);
+    setTimeout(() => {
+        container.classList.add('exit');
+        setTimeout(() => container.remove(), 400);
+    }, 6000);
 }
 
 // ============================================================
@@ -1037,7 +1307,7 @@ async function handleSignIn() {
 
     currentUser = data.user;
     await loadProfile();
-    enterChat();
+    openJoinModal();
 }
 
 // ============================================================
@@ -1046,6 +1316,7 @@ async function handleSignIn() {
 async function handleSignOut() {
     if (!confirm('Sign out?')) return;
     if (msgSubscription) msgSubscription.unsubscribe();
+    if (notifyInterval) clearInterval(notifyInterval);
     await _supabase.auth.signOut();
     currentUser = null; currentProfile = null;
     closeProfile();
@@ -1069,6 +1340,7 @@ async function loadProfile() {
     currentProfile = data;
     updateProfileUI();
     loadNotifications();
+    subscribeToNotifications();
 }
 
 function updateProfileUI() {
@@ -1092,9 +1364,6 @@ function updateProfileUI() {
         document.getElementById('bioInput').value = p.bio;
         updateBioCounter();
     }
-
-    document.getElementById('deptRoomLabel').textContent = p.department?.toUpperCase() || 'Dept';
-    document.getElementById('batchRoomLabel').textContent = `Batch ${p.batch}` || 'Batch';
 }
 
 // ============================================================
@@ -1106,8 +1375,6 @@ async function loadNotifications() {
         .from('notifications')
         .select('*')
         .or(`target_batch.is.null,target_batch.eq.${currentProfile.batch}`)
-        .or(`target_dept.is.null,target_dept.eq.${currentProfile.department}`)
-        .or(`target_semester.is.null,target_semester.eq.${currentProfile.semester}`)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -1131,14 +1398,47 @@ function renderNotifications() {
     `).join('');
 }
 
+function subscribeToNotifications() {
+    if (notifyInterval) clearInterval(notifyInterval);
+    notifyInterval = setInterval(checkNewNotifications, 5000);
+}
+
+async function checkNewNotifications() {
+    if (!currentProfile) return;
+    const { data } = await _supabase
+        .from('notifications')
+        .select('*')
+        .or(`target_batch.is.null,target_batch.eq.${currentProfile.batch}`)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+    if (data && data.length > 0 && allNotifications.length > 0) {
+        if (data[0].id !== allNotifications[0].id) {
+            showLiveNotification(data[0]);
+            loadNotifications();
+        }
+    }
+}
+
+function updateNotifyForm() {
+    const type = document.querySelector('input[name="notifyType"]:checked').value;
+    document.getElementById('specificFilters').style.display = type === 'specific' ? 'block' : 'none';
+}
+
 async function sendNotice() {
     if (!currentUser || !currentProfile) return showToast('Not authenticated', 'error');
 
     const title = document.getElementById('noticeTitle').value.trim();
     const message = document.getElementById('noticeMessage').value.trim();
-    const batch = document.getElementById('targetBatch').value || null;
-    const dept = document.getElementById('targetDept').value || null;
-    const semester = document.getElementById('targetSemester').value || null;
+    const notifyType = document.querySelector('input[name="notifyType"]:checked').value;
+    
+    let batch = null, dept = null, semester = null;
+    
+    if (notifyType === 'specific') {
+        batch = document.getElementById('targetBatch').value || null;
+        dept = document.getElementById('targetDept').value || null;
+        semester = document.getElementById('targetSemester').value || null;
+    }
 
     if (!title || !message) return showToast('Fill title and message', 'error');
 
@@ -1156,7 +1456,64 @@ async function sendNotice() {
     document.getElementById('noticeMessage').value = '';
     closeModal('notifyModal');
     loadNotifications();
-    showToast('Notice sent! 📢', 'success');
+    showToast('Announcement sent! 📢', 'success');
+}
+
+// ============================================================
+//  JOIN SYSTEM
+// ============================================================
+function openJoinModal() {
+    const roomsHtml = Object.entries(ROOMS).map(([key, room]) => `
+        <div class="room-join-item">
+            <div class="room-join-info">
+                <div class="room-join-icon">${room.icon}</div>
+                <div class="room-join-text">
+                    <h4>${room.title}</h4>
+                    <span>${key === 'global' ? 'All students' : key === 'dept' ? 'Your department' : key === 'batch' ? 'Your batch' : 'Hackathon discussions'}</span>
+                </div>
+            </div>
+            <button class="join-btn ${joinedRooms.includes(key) ? 'joined' : ''}" id="joinBtn-${key}" onclick="toggleJoinRoom('${key}')">
+                ${joinedRooms.includes(key) ? '✓ Joined' : 'Join'}
+            </button>
+        </div>
+    `).join('');
+    
+    document.getElementById('roomsJoinList').innerHTML = roomsHtml;
+    document.getElementById('joinModal').classList.add('show');
+}
+
+function closeJoinModal() {
+    document.getElementById('joinModal').classList.remove('show');
+    enterChat();
+}
+
+function toggleJoinRoom(room) {
+    if (joinedRooms.includes(room)) {
+        joinedRooms = joinedRooms.filter(r => r !== room);
+        if (currentRoom === room) switchRoom('global');
+    } else {
+        joinedRooms.push(room);
+    }
+    
+    const btn = document.getElementById(`joinBtn-${room}`);
+    btn.classList.toggle('joined');
+    btn.textContent = joinedRooms.includes(room) ? '✓ Joined' : 'Join';
+    
+    renderMyRooms();
+    showToast(`${joinedRooms.includes(room) ? 'Joined' : 'Left'} ${ROOMS[room].title}`, 'success');
+}
+
+function toggleRoomJoin() {
+    if (joinedRooms.includes(currentRoom)) {
+        joinedRooms = joinedRooms.filter(r => r !== currentRoom);
+        switchRoom('global');
+        showToast(`Left ${ROOMS[currentRoom].title}`, 'success');
+    } else {
+        joinedRooms.push(currentRoom);
+        showToast(`Joined ${ROOMS[currentRoom].title}`, 'success');
+    }
+    updateRoomJoinBtn();
+    renderMyRooms();
 }
 
 // ============================================================
@@ -1165,22 +1522,40 @@ async function sendNotice() {
 function enterChat() {
     document.getElementById('authPage').classList.add('hidden');
     document.getElementById('chatApp').classList.remove('hidden');
+    renderMyRooms();
     switchRoom('global');
     loadOnlineMembers();
     showToast(`Welcome back, ${currentProfile?.name || 'Student'}! 👋`, 'success');
 }
 
 // ============================================================
+//  RENDER MY ROOMS
+// ============================================================
+function renderMyRooms() {
+    const list = document.getElementById('myRoomsList');
+    list.innerHTML = joinedRooms.map(room => `
+        <div class="room-item ${currentRoom === room ? 'active' : ''}" onclick="switchRoom('${room}')">
+            <div class="room-badge" style="background:rgba(124,58,237,0.15);">${ROOMS[room].icon}</div>
+            <div class="room-item-info">
+                <h5>${ROOMS[room].title}</h5>
+                <span>${room === 'global' ? 'All' : room === 'dept' ? currentProfile?.department?.toUpperCase() : room === 'batch' ? `Batch ${currentProfile?.batch}` : 'Events'}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ============================================================
 //  ROOM SWITCHING
 // ============================================================
 function switchRoom(room) {
+    if (!joinedRooms.includes(room) && room !== 'global') {
+        showToast('Join this room first!', 'error');
+        return;
+    }
+    
     currentRoom = room;
     allMessages = [];
-    document.getElementById('chatMessages').innerHTML = `
-        <div class="empty-msg" id="emptyState">
-            <i class="fas fa-comments"></i>
-            <p>No messages yet. Say something! 👋</p>
-        </div>`;
+    document.getElementById('chatMessages').innerHTML = `<div class="empty-msg" id="emptyState"><i class="fas fa-comments"></i><p>No messages yet. Say something! 👋</p></div>`;
 
     ['global','dept','batch','hackathon'].forEach(r => {
         document.getElementById(`btn${r.charAt(0).toUpperCase()+r.slice(1)}`)?.classList?.remove('active');
@@ -1190,14 +1565,23 @@ function switchRoom(room) {
     document.getElementById(`room-${room}`)?.classList?.add('active');
 
     const rd = ROOMS[room] || ROOMS.global;
-    document.getElementById('roomIcon').textContent     = rd.icon;
-    document.getElementById('roomTitle').textContent    = getRoomName(room);
-    document.getElementById('msgInput').placeholder     = rd.placeholder;
+    document.getElementById('roomIcon').textContent = rd.icon;
+    document.getElementById('roomTitle').textContent = getRoomName(room);
+    document.getElementById('msgInput').placeholder = rd.placeholder;
+
+    updateRoomJoinBtn();
+    renderMyRooms();
 
     if (msgSubscription) msgSubscription.unsubscribe();
 
     loadMessages();
     subscribeMessages();
+}
+
+function updateRoomJoinBtn() {
+    const btn = document.getElementById('roomJoinBtn');
+    btn.classList.toggle('joined', joinedRooms.includes(currentRoom));
+    btn.textContent = joinedRooms.includes(currentRoom) ? '✓ Joined' : '+ Join Room';
 }
 
 function getRoomName(room) {
@@ -1450,13 +1834,15 @@ function closeModal(modalId) {
 //  INIT
 // ============================================================
 async function initApp() {
+    initTheme();
+    
     const { data: { session } } = await _supabase.auth.getSession();
 
     if (session?.user) {
         currentUser = session.user;
         await loadProfile();
         if (currentProfile) {
-            enterChat();
+            openJoinModal();
         } else {
             document.getElementById('authPage').classList.remove('hidden');
         }
