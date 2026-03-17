@@ -3,27 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Circle — Chat</title>
+    <title>Campus Circle — Chat & Notify</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- ======================================================
-         🔑 SUPABASE KEYS — SHUDHU EI DUI JAIGA CHANGE KOR
-         ====================================================== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ┌─────────────────────────────────────────────────────┐
-        // │  👇 EI LINE E TOR SUPABASE PROJECT URL BOSAI DE     │
         const SUPABASE_URL = 'https://htozsbirvogyrbuosujg.supabase.co';
-        // └─────────────────────────────────────────────────────┘
-
-        // ┌─────────────────────────────────────────────────────┐
-        // │  👇 EI LINE E TOR SUPABASE ANON KEY BOSAI DE        │
         const SUPABASE_ANON_KEY = 'sb_publishable_jzs5NdZBc1tzbzf70kXyHg_RlSgdSpt';
-        // └─────────────────────────────────────────────────────┘
-
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     </script>
 
@@ -34,6 +23,8 @@
             --secondary: #F472B6;
             --accent: #22D3EE;
             --accent2: #34D399;
+            --danger: #EF4444;
+            --warning: #F59E0B;
             --bg: #0A0A0F;
             --bg2: #111118;
             --bg3: #16161f;
@@ -44,8 +35,6 @@
             --text: #F1F0FF;
             --text2: #A09BBF;
             --text3: #5E5A7A;
-            --success: #34D399;
-            --error: #F87171;
             --radius: 14px;
             --radius2: 22px;
         }
@@ -61,7 +50,6 @@
             overflow: hidden;
         }
 
-        /* Ambient orbs */
         body::before {
             content:''; position:fixed; top:-15%; right:-10%;
             width:500px; height:500px;
@@ -87,9 +75,10 @@
         }
         #toast.show { transform: translateX(-50%) translateY(0); }
         #toast.success { border-color: rgba(52,211,153,0.4); color: var(--accent2); }
-        #toast.error { border-color: rgba(248,113,113,0.4); color: var(--error); }
+        #toast.error { border-color: rgba(239,68,68,0.4); color: var(--danger); }
+        #toast.warn { border-color: rgba(245,158,11,0.4); color: var(--warning); }
 
-        /* ===== OVERLAY PAGES ===== */
+        /* ===== PAGE ===== */
         .page {
             position: fixed; inset: 0;
             display: flex; align-items: center; justify-content: center;
@@ -105,7 +94,7 @@
             border: 1px solid var(--border);
             border-radius: var(--radius2);
             padding: 2.5rem 2.2rem;
-            width: 100%; max-width: 440px;
+            width: 100%; max-width: 480px;
             backdrop-filter: blur(30px);
             box-shadow: 0 25px 60px rgba(0,0,0,0.5);
             animation: card-pop 0.5s cubic-bezier(0.16,1,0.3,1) both;
@@ -127,7 +116,6 @@
         .auth-title { font-family: 'Nunito', sans-serif; font-size: 1.4rem; font-weight: 800; text-align: center; margin-bottom: 0.3rem; }
         .auth-sub { text-align: center; color: var(--text2); font-size: 0.85rem; margin-bottom: 1.8rem; }
 
-        /* Tabs */
         .auth-tabs {
             display: flex; background: rgba(255,255,255,0.04);
             border: 1px solid var(--border); border-radius: 50px;
@@ -144,7 +132,6 @@
             color: white; box-shadow: 0 4px 15px rgba(124,58,237,0.35);
         }
 
-        /* Form */
         .form-group { margin-bottom: 1.1rem; }
         .form-label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text2); margin-bottom: 0.4rem; letter-spacing: 0.3px; text-transform: uppercase; }
         .form-input {
@@ -203,7 +190,18 @@
 
         .profile-body {
             flex: 1; overflow-y: auto; padding: 2rem 1.5rem;
-            max-width: 600px; margin: 0 auto; width: 100%;
+            max-width: 700px; margin: 0 auto; width: 100%;
+        }
+
+        .profile-section {
+            margin-bottom: 2rem;
+        }
+
+        .profile-section-title {
+            font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px; color: var(--text2);
+            padding-bottom: 0.8rem; border-bottom: 1px solid var(--border);
+            margin-bottom: 1.2rem;
         }
 
         .profile-avatar-section {
@@ -232,67 +230,6 @@
 
         .profile-name { font-family: 'Nunito', sans-serif; font-size: 1.3rem; font-weight: 900; }
         .profile-dept { color: var(--text2); font-size: 0.85rem; }
-
-        /* NEW: Bio Display Box - Name er niche stylish box */
-        .profile-bio-box {
-            background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(167,139,250,0.05));
-            border: 1px solid rgba(124,58,237,0.2);
-            border-radius: 16px;
-            padding: 1rem 1.2rem;
-            margin: 1rem 0 1.5rem 0;
-            width: 100%;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .profile-bio-box::before {
-            content: '"';
-            position: absolute;
-            top: -10px;
-            left: 5px;
-            font-size: 5rem;
-            color: rgba(124,58,237,0.2);
-            font-family: serif;
-            transform: rotate(180deg);
-            pointer-events: none;
-        }
-        
-        .profile-bio-box::after {
-            content: '"';
-            position: absolute;
-            bottom: -30px;
-            right: 5px;
-            font-size: 5rem;
-            color: rgba(124,58,237,0.2);
-            font-family: serif;
-            pointer-events: none;
-        }
-        
-        .profile-bio-text {
-            font-size: 0.95rem;
-            line-height: 1.6;
-            color: var(--text);
-            text-align: center;
-            font-style: italic;
-            position: relative;
-            z-index: 2;
-            word-break: break-word;
-        }
-        
-        .profile-bio-empty {
-            color: var(--text3);
-            text-align: center;
-            font-size: 0.9rem;
-            padding: 0.2rem 0;
-        }
-        
-        .profile-bio-box i {
-            color: var(--primary-light);
-            margin-right: 5px;
-            opacity: 0.7;
-        }
 
         .profile-stats-row {
             display: flex; gap: 1.5rem; justify-content: center;
@@ -324,16 +261,51 @@
         }
         .bio-textarea:focus { outline: none; border-color: var(--primary); background: rgba(124,58,237,0.06); }
         .bio-counter { font-size: 0.72rem; color: var(--text3); text-align: right; margin-top: 0.3rem; }
-        .bio-counter.warn { color: var(--error); }
+        .bio-counter.warn { color: var(--danger); }
 
-        .save-bio-btn {
+        .save-btn {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: white; border: none; padding: 10px 24px; border-radius: 50px;
             font-size: 0.85rem; font-weight: 800; font-family: 'Nunito', sans-serif;
             cursor: pointer; transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+            margin-right: 0.5rem;
         }
-        .save-bio-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
+        .save-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(124,58,237,0.45); }
+
+        .action-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+        /* ===== MODAL ===== */
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 110; padding: 20px;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+        }
+        .modal.show { opacity: 1; pointer-events: auto; }
+
+        .modal-content {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: var(--radius2); padding: 2rem;
+            max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;
+            animation: modal-pop 0.3s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        @keyframes modal-pop {
+            from { opacity:0; transform: scale(0.95); }
+            to   { opacity:1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        .modal-header h3 { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 800; }
+        .modal-close {
+            background: none; border: none; color: var(--text2);
+            font-size: 1.2rem; cursor: pointer; transition: color 0.2s;
+        }
+        .modal-close:hover { color: var(--text); }
 
         /* ===== MAIN CHAT LAYOUT ===== */
         #chatApp {
@@ -342,7 +314,6 @@
         }
         #chatApp.hidden { display: none; }
 
-        /* Sidebar */
         .chat-sidebar {
             width: 72px; background: rgba(10,10,15,0.95);
             border-right: 1px solid var(--border);
@@ -358,8 +329,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.1rem; color: white; margin-bottom: 1rem;
             box-shadow: 0 4px 15px rgba(124,58,237,0.4);
-            cursor: pointer;
-            text-decoration: none;
+            cursor: pointer; text-decoration: none;
         }
 
         .sidebar-divider { width: 36px; height: 1px; background: var(--border); margin: 0.5rem 0; }
@@ -394,13 +364,11 @@
         }
         .sidebar-avatar:hover { box-shadow: 0 0 15px rgba(124,58,237,0.5); }
 
-        /* Chat Main */
         .chat-main {
             flex: 1; display: flex; flex-direction: column;
             min-width: 0;
         }
 
-        /* Chat Header */
         .chat-topbar {
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 1.5rem; height: 62px;
@@ -431,7 +399,6 @@
             font-size: 0.75rem; color: var(--accent2); font-weight: 600;
         }
 
-        /* Messages area */
         .chat-messages {
             flex: 1; overflow-y: auto;
             padding: 1.5rem;
@@ -443,14 +410,12 @@
         .chat-messages::-webkit-scrollbar-track { background: transparent; }
         .chat-messages::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 2px; }
 
-        /* Date separator */
         .date-sep {
             display: flex; align-items: center; gap: 1rem;
             margin: 1rem 0; color: var(--text3); font-size: 0.72rem;
         }
         .date-sep::before, .date-sep::after { content:''; flex:1; height:1px; background: var(--border); }
 
-        /* Message */
         .msg {
             display: flex; gap: 0.8rem; padding: 0.2rem 0.5rem;
             border-radius: 12px; transition: background 0.2s;
@@ -505,22 +470,6 @@
             box-shadow: 0 4px 15px rgba(124,58,237,0.3);
         }
 
-        /* Typing indicator */
-        .typing-indicator {
-            display: flex; align-items: center; gap: 0.6rem;
-            padding: 0.5rem 1.5rem; color: var(--text3); font-size: 0.78rem;
-            min-height: 28px; flex-shrink: 0;
-        }
-        .typing-dots { display: flex; gap: 3px; }
-        .typing-dots span {
-            width: 5px; height: 5px; border-radius: 50%;
-            background: var(--text3); animation: tdot 1.4s ease infinite;
-        }
-        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes tdot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-
-        /* Input area */
         .chat-input-area {
             padding: 1rem 1.5rem;
             border-top: 1px solid var(--border);
@@ -561,7 +510,6 @@
         .send-btn:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(124,58,237,0.55); }
         .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-        /* Rooms panel */
         .rooms-panel {
             width: 260px; background: var(--bg2);
             border-right: 1px solid var(--border);
@@ -591,14 +539,6 @@
         .room-item-info h5 { font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; }
         .room-item-info span { font-size: 0.72rem; color: var(--text3); }
 
-        .unread-badge {
-            margin-left: auto; background: var(--primary);
-            color: white; font-size: 0.65rem; font-weight: 800;
-            width: 18px; height: 18px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* Members panel */
         .members-panel {
             width: 220px; background: var(--bg2);
             border-left: 1px solid var(--border);
@@ -620,7 +560,6 @@
 
         .online-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); margin-left: auto; flex-shrink: 0; box-shadow: 0 0 6px var(--accent2); }
 
-        /* Loading spinner */
         .spinner {
             width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.2);
             border-top-color: white; border-radius: 50%;
@@ -628,7 +567,6 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Empty state */
         .empty-msg {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center; gap: 0.8rem;
@@ -637,7 +575,6 @@
         .empty-msg i { font-size: 2.5rem; opacity: 0.3; }
         .empty-msg p { font-size: 0.88rem; }
 
-        /* Responsive */
         @media (max-width: 900px) {
             .members-panel { display: none; }
         }
@@ -649,6 +586,7 @@
         @media (max-width: 420px) {
             .auth-card { padding: 2rem 1.4rem; }
             .form-row { grid-template-columns: 1fr; }
+            .profile-info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -657,9 +595,7 @@
 <!-- ===== TOAST ===== -->
 <div id="toast"><span id="toastMsg"></span></div>
 
-<!-- ===========================
-     AUTH PAGE
-     =========================== -->
+<!-- ===== AUTH PAGE ===== -->
 <div class="page" id="authPage">
     <div class="auth-card">
         <div class="auth-logo">
@@ -672,7 +608,7 @@
             <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">Sign Up</button>
         </div>
 
-        <!-- SIGN IN FORM -->
+        <!-- SIGN IN -->
         <div id="signinForm">
             <div class="form-group">
                 <label class="form-label">Student ID</label>
@@ -687,7 +623,7 @@
             </button>
         </div>
 
-        <!-- SIGN UP FORM -->
+        <!-- SIGN UP -->
         <div id="signupForm" style="display:none;">
             <div class="form-group">
                 <label class="form-label">Full Name</label>
@@ -702,17 +638,8 @@
                     <label class="form-label">Batch</label>
                     <select class="form-input" id="suBatch">
                         <option value="">Select</option>
-                        <option>28th</option>
-                        <option>29th</option>
-                        <option>30th</option>
-                        <option>31st</option>
-                        <option>32nd</option>
-                        <option>33rd</option>
-                        <option>34th</option>
-                        <option>35th</option>
-                        <option>36th</option>
-                        <option>37th</option>
-                        <option>38th</option>
+                        <option>2020</option><option>2021</option>
+                        <option>2022</option><option>2023</option><option>2024</option>
                     </select>
                 </div>
             </div>
@@ -726,7 +653,6 @@
                         <option value="english">English</option>
                         <option value="law">Law</option>
                         <option value="economics">Economics</option>
-                        <option value="other">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -740,7 +666,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">Password</label>
+                <label class="form-label">Password (Min 6 chars)</label>
                 <input class="form-input" id="suPassword" placeholder="Min 6 characters" type="password">
             </div>
             <button class="auth-btn" id="signupBtn" onclick="handleSignUp()">
@@ -755,75 +681,140 @@
     </div>
 </div>
 
-<!-- ===========================
-     PROFILE PAGE
-     =========================== -->
+<!-- ===== PROFILE PAGE ===== -->
 <div class="profile-page hidden" id="profilePage">
     <div class="profile-header-bar">
         <button class="back-btn" onclick="closeProfile()"><i class="fas fa-arrow-left"></i></button>
         <h3>My Profile</h3>
         <div style="margin-left:auto;display:flex;gap:0.5rem;">
-            <button class="back-btn" onclick="handleSignOut()" title="Sign Out" style="color:var(--error);border-color:rgba(248,113,113,0.2);">
+            <button class="back-btn" onclick="openNotifyModal()" title="Send Notice">
+                <i class="fas fa-bell"></i>
+            </button>
+            <button class="back-btn" onclick="handleSignOut()" title="Sign Out" style="color:var(--danger);border-color:rgba(239,68,68,0.2);">
                 <i class="fas fa-right-from-bracket"></i>
             </button>
         </div>
     </div>
     <div class="profile-body">
         <!-- Avatar -->
-        <div class="profile-avatar-section">
-            <div class="profile-avatar-wrap">
-                <img id="profileAvatarImg" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="Avatar">
-                <label class="avatar-edit-btn" for="avatarFileInput" title="Change photo">
-                    <i class="fas fa-camera"></i>
-                </label>
-                <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+        <div class="profile-section">
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-wrap">
+                    <img id="profileAvatarImg" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus" alt="Avatar">
+                    <label class="avatar-edit-btn" for="avatarFileInput" title="Change photo">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="avatarFileInput" accept="image/*" onchange="handleAvatarUpload(event)">
+                </div>
+                <div style="text-align:center;">
+                    <div class="profile-name" id="profileNameDisplay">—</div>
+                    <div class="profile-dept" id="profileDeptDisplay">—</div>
+                </div>
             </div>
-            <div style="text-align:center;">
-                <div class="profile-name" id="profileNameDisplay">—</div>
-                <div class="profile-dept" id="profileDeptDisplay">—</div>
-            </div>
-        </div>
-        
-        <!-- NEW: Bio Display Box - Name er niche stylish box -->
-        <div class="profile-bio-box" id="profileBioBox">
-            <div id="profileBioDisplay" class="profile-bio-empty">
-                <i class="fas fa-quote-left"></i> No bio yet. Add one below!
+
+            <!-- Stats -->
+            <div class="profile-stats-row">
+                <div class="pstat"><strong id="pMsgCount">0</strong><span>Messages</span></div>
+                <div class="pstat"><strong id="pBatch">—</strong><span>Batch</span></div>
+                <div class="pstat"><strong id="pSemester">—</strong><span>Semester</span></div>
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="profile-stats-row">
-            <div class="pstat"><strong id="pMsgCount">0</strong><span>Messages</span></div>
-            <div class="pstat"><strong id="pBatch">—</strong><span>Batch</span></div>
-            <div class="pstat"><strong id="pSemester">—</strong><span>Semester</span></div>
+        <!-- Info -->
+        <div class="profile-section">
+            <div class="profile-section-title">📋 Basic Information</div>
+            <div class="profile-info-grid">
+                <div class="info-chip"><label>Student ID</label><span id="pStudentId">—</span></div>
+                <div class="info-chip"><label>Department</label><span id="pDept">—</span></div>
+                <div class="info-chip"><label>Batch</label><span id="pBatchChip">—</span></div>
+                <div class="info-chip"><label>Semester</label><span id="pSemChip">—</span></div>
+            </div>
         </div>
 
-        <!-- Info chips -->
-        <div class="profile-info-grid">
-            <div class="info-chip"><label>Student ID</label><span id="pStudentId">—</span></div>
-            <div class="info-chip"><label>Department</label><span id="pDept">—</span></div>
-            <div class="info-chip"><label>Batch</label><span id="pBatchChip">—</span></div>
-            <div class="info-chip"><label>Semester</label><span id="pSemChip">—</span></div>
+        <!-- Bio -->
+        <div class="profile-section">
+            <div class="profile-section-title">✍️ About Me</div>
+            <div class="bio-section">
+                <label>Bio (max 110 chars)</label>
+                <textarea class="bio-textarea" id="bioInput" rows="3" maxlength="110" placeholder="Write something about yourself..." oninput="updateBioCounter()"></textarea>
+                <div class="bio-counter" id="bioCounter">0 / 110</div>
+                <div class="action-row">
+                    <button class="save-btn" onclick="saveBio()">
+                        <i class="fas fa-check"></i> Save Bio
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Bio Edit Section -->
-        <div class="bio-section">
-            <label>About Me (max 110 chars)</label>
-            <textarea class="bio-textarea" id="bioInput" rows="3" maxlength="110" placeholder="Write something about yourself..." oninput="updateBioCounter()"></textarea>
-            <div class="bio-counter" id="bioCounter">0 / 110</div>
-            <button class="save-bio-btn" onclick="saveBio()">
-                <i class="fas fa-check"></i> Save Bio
-            </button>
+        <!-- Notifications -->
+        <div class="profile-section">
+            <div class="profile-section-title">🔔 My Notifications</div>
+            <div id="notificationsContainer" style="font-size:0.9rem;color:var(--text3);padding:1rem;text-align:center;">
+                <i class="fas fa-envelope-open-text"></i> No notifications yet
+            </div>
         </div>
     </div>
 </div>
 
-<!-- ===========================
-     MAIN CHAT APP
-     =========================== -->
-<div id="chatApp" class="hidden">
+<!-- ===== NOTIFY MODAL ===== -->
+<div class="modal" id="notifyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📢 Send Notice</h3>
+            <button class="modal-close" onclick="closeModal('notifyModal')">&times;</button>
+        </div>
 
-    <!-- Left sidebar icons -->
+        <div class="form-group">
+            <label class="form-label">Notice Title</label>
+            <input class="form-input" id="noticeTitle" placeholder="e.g. Exam Schedule Update">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea class="bio-textarea" id="noticeMessage" rows="4" placeholder="Write your notice..."></textarea>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Target Batch</label>
+                <select class="form-input" id="targetBatch">
+                    <option value="">All Batches</option>
+                    <option>2020</option><option>2021</option>
+                    <option>2022</option><option>2023</option><option>2024</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Target Department</label>
+                <select class="form-input" id="targetDept">
+                    <option value="">All Departments</option>
+                    <option value="cse">CSE</option>
+                    <option value="bba">BBA</option>
+                    <option value="english">English</option>
+                    <option value="law">Law</option>
+                    <option value="economics">Economics</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Target Semester</label>
+            <select class="form-input" id="targetSemester">
+                <option value="">All Semesters</option>
+                <option>1st</option><option>2nd</option><option>3rd</option>
+                <option>4th</option><option>5th</option><option>6th</option>
+                <option>7th</option><option>8th</option>
+            </select>
+        </div>
+
+        <button class="auth-btn" onclick="sendNotice()">
+            <i class="fas fa-paper-plane"></i> Send Notice
+        </button>
+    </div>
+</div>
+
+<!-- ===== MAIN CHAT ===== -->
+<div id="chatApp" class="hidden">
+    <!-- Sidebar -->
     <div class="chat-sidebar">
         <a href="index.html" class="sidebar-logo" title="Home">
             <i class="fas fa-seedling"></i>
@@ -831,32 +822,32 @@
 
         <div class="sidebar-divider"></div>
 
-        <button class="sidebar-btn active" id="btnGlobal" onclick="switchRoom('global')" title="">
+        <button class="sidebar-btn active" id="btnGlobal" onclick="switchRoom('global')">
             <i class="fas fa-globe"></i>
             <span class="tooltip">Global Chat</span>
         </button>
-        <button class="sidebar-btn" id="btnDept" onclick="switchRoom('dept')" title="">
+        <button class="sidebar-btn" id="btnDept" onclick="switchRoom('dept')">
             <i class="fas fa-building-columns"></i>
             <span class="tooltip">Dept Chat</span>
         </button>
-        <button class="sidebar-btn" id="btnBatch" onclick="switchRoom('batch')" title="">
+        <button class="sidebar-btn" id="btnBatch" onclick="switchRoom('batch')">
             <i class="fas fa-users"></i>
             <span class="tooltip">Batch Chat</span>
         </button>
-        <button class="sidebar-btn" id="btnHackathon" onclick="switchRoom('hackathon')" title="">
+        <button class="sidebar-btn" id="btnHackathon" onclick="switchRoom('hackathon')">
             <i class="fas fa-trophy"></i>
             <span class="tooltip">Hackathon</span>
         </button>
 
         <div class="sidebar-spacer"></div>
 
-        <button class="sidebar-btn" onclick="openProfile()" title="">
-            <img class="sidebar-avatar" id="sidebarAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="me">
+        <button class="sidebar-btn" onclick="openProfile()">
+            <img class="sidebar-avatar" id="sidebarAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus" alt="me">
             <span class="tooltip">My Profile</span>
         </button>
     </div>
 
-    <!-- Rooms list panel -->
+    <!-- Rooms Panel -->
     <div class="rooms-panel">
         <div class="rooms-header">
             <h4>Channels</h4>
@@ -881,9 +872,8 @@
         </div>
     </div>
 
-    <!-- Main chat column -->
+    <!-- Main Chat -->
     <div class="chat-main">
-        <!-- Top bar -->
         <div class="chat-topbar">
             <div class="chat-topbar-left">
                 <div class="room-icon" id="roomIcon">🌐</div>
@@ -898,7 +888,6 @@
             </div>
         </div>
 
-        <!-- Messages -->
         <div class="chat-messages" id="chatMessages">
             <div class="empty-msg" id="emptyState">
                 <i class="fas fa-comments"></i>
@@ -906,16 +895,9 @@
             </div>
         </div>
 
-        <!-- Typing indicator -->
-        <div class="typing-indicator" id="typingIndicator" style="display:none;">
-            <div class="typing-dots"><span></span><span></span><span></span></div>
-            <span id="typingText">Someone is typing...</span>
-        </div>
-
-        <!-- Input -->
         <div class="chat-input-area">
             <div class="chat-input-wrap">
-                <input type="text" id="msgInput" placeholder="Message Global Campus..." maxlength="500" onkeydown="handleMsgKey(event)" oninput="handleTyping()">
+                <input type="text" id="msgInput" placeholder="Message Global Campus..." maxlength="500" onkeydown="handleMsgKey(event)">
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -923,7 +905,7 @@
         </div>
     </div>
 
-    <!-- Members panel -->
+    <!-- Members Panel -->
     <div class="members-panel">
         <h4>Online Members</h4>
         <div id="membersList"></div>
@@ -932,21 +914,21 @@
 
 <script>
 // ============================================================
-//  APP STATE
+//  STATE
 // ============================================================
 let currentUser    = null;
 let currentProfile = null;
 let currentRoom    = 'global';
 let msgSubscription = null;
-let typingTimeout  = null;
 let allMessages    = [];
 let onlineMembers  = [];
+let allNotifications = [];
 
 const ROOMS = {
     global:    { icon:'🌐', title:'Global Campus', placeholder:'Message Global Campus...' },
-    dept:      { icon:'🏛️', title:'Department',    placeholder:'Message your department...' },
-    batch:     { icon:'👥', title:'Batch',          placeholder:'Message your batch...' },
-    hackathon: { icon:'🏆', title:'Hackathon BD',   placeholder:'Discuss hackathons...' }
+    dept:      { icon:'🏛️', title:'Department', placeholder:'Message your department...' },
+    batch:     { icon:'👥', title:'Batch', placeholder:'Message your batch...' },
+    hackathon: { icon:'🏆', title:'Hackathon BD', placeholder:'Discuss hackathons...' }
 };
 
 // ============================================================
@@ -961,7 +943,7 @@ function showToast(msg, type='success') {
 }
 
 // ============================================================
-//  AUTH TABS
+//  TAB SWITCH
 // ============================================================
 function switchTab(tab) {
     document.getElementById('signinForm').style.display = tab==='signin' ? 'block' : 'none';
@@ -990,7 +972,6 @@ async function handleSignUp() {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span> Creating...';
 
-    // Use studentId as fake email for Supabase Auth
     const fakeEmail = `${studentId.toLowerCase().replace(/[^a-z0-9]/g,'')}@campuscircle.vu`;
 
     const { data, error } = await _supabase.auth.signUp({
@@ -1008,7 +989,6 @@ async function handleSignUp() {
         return;
     }
 
-    // Insert profile
     if (data.user) {
         const { error: pErr } = await _supabase.from('profiles').insert({
             id: data.user.id,
@@ -1023,7 +1003,6 @@ async function handleSignUp() {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
 
-    // Auto sign in
     setTimeout(() => {
         document.getElementById('siStudentId').value = studentId;
         document.getElementById('siPassword').value = password;
@@ -1089,13 +1068,13 @@ async function loadProfile() {
     if (error) { console.warn('Profile load:', error.message); return; }
     currentProfile = data;
     updateProfileUI();
+    loadNotifications();
 }
 
 function updateProfileUI() {
     if (!currentProfile) return;
     const p = currentProfile;
 
-    // Sidebar avatar
     const avatarUrl = p.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${p.student_id}&backgroundColor=7c3aed`;
     document.getElementById('sidebarAvatar').src     = avatarUrl;
     document.getElementById('profileAvatarImg').src  = avatarUrl;
@@ -1109,29 +1088,75 @@ function updateProfileUI() {
     document.getElementById('pSemester').textContent   = p.semester;
     document.getElementById('pSemChip').textContent    = p.semester;
 
-    // Bio display update
-    const bioDisplay = document.getElementById('profileBioDisplay');
-    if (p.bio && p.bio.trim() !== '') {
-        bioDisplay.className = 'profile-bio-text';
-        bioDisplay.innerHTML = `<i class="fas fa-quote-left" style="opacity:0.5; margin-right:5px;"></i>${escapeHtml(p.bio)}<i class="fas fa-quote-right" style="opacity:0.5; margin-left:5px;"></i>`;
-    } else {
-        bioDisplay.className = 'profile-bio-empty';
-        bioDisplay.innerHTML = '<i class="fas fa-quote-left"></i> No bio yet. Add one below!';
-    }
-
     if (p.bio) {
         document.getElementById('bioInput').value = p.bio;
         updateBioCounter();
     }
 
-    // Room labels
     document.getElementById('deptRoomLabel').textContent = p.department?.toUpperCase() || 'Dept';
     document.getElementById('batchRoomLabel').textContent = `Batch ${p.batch}` || 'Batch';
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+// ============================================================
+//  NOTIFICATIONS
+// ============================================================
+async function loadNotifications() {
+    if (!currentProfile) return;
+    const { data } = await _supabase
+        .from('notifications')
+        .select('*')
+        .or(`target_batch.is.null,target_batch.eq.${currentProfile.batch}`)
+        .or(`target_dept.is.null,target_dept.eq.${currentProfile.department}`)
+        .or(`target_semester.is.null,target_semester.eq.${currentProfile.semester}`)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+    allNotifications = data || [];
+    renderNotifications();
+}
+
+function renderNotifications() {
+    const container = document.getElementById('notificationsContainer');
+    if (!allNotifications.length) {
+        container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text3);"><i class="fas fa-envelope-open-text"></i> No notifications yet</div>';
+        return;
+    }
+
+    container.innerHTML = allNotifications.map(n => `
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(124,58,237,0.2);padding:1rem;border-radius:12px;margin-bottom:0.8rem;text-align:left;">
+            <div style="font-weight:700;color:var(--primary-light);font-size:0.95rem;margin-bottom:0.4rem;">${escapeHtml(n.title)}</div>
+            <div style="font-size:0.75rem;color:var(--text3);margin-bottom:0.6rem;">${new Date(n.created_at).toLocaleString('en-BD')}</div>
+            <div style="font-size:0.9rem;color:var(--text);line-height:1.5;">${escapeHtml(n.message)}</div>
+        </div>
+    `).join('');
+}
+
+async function sendNotice() {
+    if (!currentUser || !currentProfile) return showToast('Not authenticated', 'error');
+
+    const title = document.getElementById('noticeTitle').value.trim();
+    const message = document.getElementById('noticeMessage').value.trim();
+    const batch = document.getElementById('targetBatch').value || null;
+    const dept = document.getElementById('targetDept').value || null;
+    const semester = document.getElementById('targetSemester').value || null;
+
+    if (!title || !message) return showToast('Fill title and message', 'error');
+
+    const { error } = await _supabase.from('notifications').insert({
+        sender_id: currentUser.id,
+        title, message,
+        target_batch: batch,
+        target_dept: dept,
+        target_semester: semester
+    });
+
+    if (error) return showToast('Failed to send notice: ' + error.message, 'error');
+
+    document.getElementById('noticeTitle').value = '';
+    document.getElementById('noticeMessage').value = '';
+    closeModal('notifyModal');
+    loadNotifications();
+    showToast('Notice sent! 📢', 'success');
 }
 
 // ============================================================
@@ -1157,7 +1182,6 @@ function switchRoom(room) {
             <p>No messages yet. Say something! 👋</p>
         </div>`;
 
-    // Update sidebar buttons
     ['global','dept','batch','hackathon'].forEach(r => {
         document.getElementById(`btn${r.charAt(0).toUpperCase()+r.slice(1)}`)?.classList?.remove('active');
         document.getElementById(`room-${r}`)?.classList?.remove('active');
@@ -1165,16 +1189,13 @@ function switchRoom(room) {
     document.getElementById(`btn${room.charAt(0).toUpperCase()+room.slice(1)}`)?.classList?.add('active');
     document.getElementById(`room-${room}`)?.classList?.add('active');
 
-    // Update header
     const rd = ROOMS[room] || ROOMS.global;
     document.getElementById('roomIcon').textContent     = rd.icon;
     document.getElementById('roomTitle').textContent    = getRoomName(room);
     document.getElementById('msgInput').placeholder     = rd.placeholder;
 
-    // Unsubscribe old
     if (msgSubscription) msgSubscription.unsubscribe();
 
-    // Load + subscribe
     loadMessages();
     subscribeMessages();
 }
@@ -1192,7 +1213,7 @@ function getRoomChannel(room) {
 }
 
 // ============================================================
-//  LOAD MESSAGES
+//  MESSAGES
 // ============================================================
 async function loadMessages() {
     const channel = getRoomChannel(currentRoom);
@@ -1246,7 +1267,7 @@ function buildMsgEl(msg) {
     div.dataset.msgId = msg.id;
 
     div.innerHTML = `
-        <img class="msg-avatar" src="${avatar}" alt="${name}" onclick="viewMemberProfile('${msg.user_id}')">
+        <img class="msg-avatar" src="${avatar}" alt="${name}">
         <div class="msg-body">
             <div class="msg-meta">
                 <span class="msg-name">${isOwn ? 'You' : name}</span>
@@ -1257,14 +1278,15 @@ function buildMsgEl(msg) {
     return div;
 }
 
+function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function scrollBottom() {
     const c = document.getElementById('chatMessages');
     setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50);
 }
 
-// ============================================================
-//  REALTIME SUBSCRIPTION
-// ============================================================
 function subscribeMessages() {
     const channel = getRoomChannel(currentRoom);
     msgSubscription = _supabase
@@ -1275,7 +1297,6 @@ function subscribeMessages() {
             table: 'messages',
             filter: `room=eq.${channel}`
         }, async (payload) => {
-            // Fetch full message with profile
             const { data } = await _supabase
                 .from('messages')
                 .select('*, profiles(name, avatar_url, department, batch)')
@@ -1283,7 +1304,6 @@ function subscribeMessages() {
                 .single();
 
             if (data) {
-                // Remove empty state
                 document.getElementById('emptyState')?.remove();
                 allMessages.push(data);
                 const container = document.getElementById('chatMessages');
@@ -1294,9 +1314,6 @@ function subscribeMessages() {
         .subscribe();
 }
 
-// ============================================================
-//  SEND MESSAGE
-// ============================================================
 async function sendMessage() {
     const input = document.getElementById('msgInput');
     const content = input.value.trim();
@@ -1324,13 +1341,8 @@ function handleMsgKey(e) {
     }
 }
 
-// Typing indicator (visual only — no DB)
-function handleTyping() {
-    // Could extend with Supabase presence if needed
-}
-
 // ============================================================
-//  ONLINE MEMBERS
+//  MEMBERS
 // ============================================================
 async function loadOnlineMembers() {
     const { data } = await _supabase
@@ -1346,7 +1358,7 @@ async function loadOnlineMembers() {
 function renderMembers() {
     const list = document.getElementById('membersList');
     list.innerHTML = onlineMembers.map(m => `
-        <div class="member-item" onclick="viewMemberProfile('${m.id}')">
+        <div class="member-item">
             <img src="${m.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.id}&backgroundColor=7c3aed`}" alt="${m.name}">
             <div class="member-item-info">
                 <h5>${m.name}</h5>
@@ -1359,17 +1371,8 @@ function renderMembers() {
     document.getElementById('pMsgCount').textContent = allMessages.filter(m => m.user_id === currentUser?.id).length;
 }
 
-async function viewMemberProfile(userId) {
-    // Mini profile popup (can extend)
-    const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-    if (!data) return;
-    const isMe = userId === currentUser?.id;
-    if (isMe) { openProfile(); return; }
-    showToast(`${data.name} • ${data.department?.toUpperCase()} • Batch ${data.batch}`, 'success');
-}
-
 // ============================================================
-//  PROFILE PAGE
+//  PROFILE
 // ============================================================
 function openProfile() {
     document.getElementById('profilePage').classList.remove('hidden');
@@ -1398,7 +1401,6 @@ async function saveBio() {
 
     if (error) return showToast('Failed to save bio', 'error');
     currentProfile.bio = bio;
-    updateProfileUI();
     showToast('Bio saved! ✅', 'success');
 }
 
@@ -1434,7 +1436,18 @@ async function handleAvatarUpload(event) {
 }
 
 // ============================================================
-//  AUTO AUTH CHECK
+//  MODAL
+// ============================================================
+function openNotifyModal() {
+    document.getElementById('notifyModal').classList.add('show');
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('show');
+}
+
+// ============================================================
+//  INIT
 // ============================================================
 async function initApp() {
     const { data: { session } } = await _supabase.auth.getSession();
@@ -1451,9 +1464,6 @@ async function initApp() {
         document.getElementById('authPage').classList.remove('hidden');
     }
 }
-
-// Additional SQL needed — add 'room' column to messages
-// ALTER TABLE messages ADD COLUMN IF NOT EXISTS room text DEFAULT 'global';
 
 initApp();
 </script>
