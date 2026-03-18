@@ -622,6 +622,113 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        .notice-list-container {
+            position: fixed; inset: 0; z-index: 95;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+            display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .notice-list-container.show { display: flex; }
+        
+        .notice-list-modal {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: var(--radius2); width: 100%; max-width: 500px;
+            max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .notice-list-header {
+            padding: 1.5rem; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg2); position: sticky; top: 0;
+        }
+        
+        .notice-list-header h3 {
+            font-family: 'Nunito', sans-serif; font-size: 1.1rem; font-weight: 800;
+            margin: 0;
+        }
+        
+        .notice-list-close {
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text2); cursor: pointer; font-size: 1.5rem;
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .notice-list-close:hover {
+            background: var(--surface2); color: var(--text);
+        }
+        
+        .notice-list-content {
+            padding: 1rem;
+        }
+        
+        .notice-item {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.2rem;
+            margin-bottom: 1rem; transition: all 0.2s;
+        }
+        
+        .notice-item:hover {
+            background: var(--surface2); border-color: var(--primary);
+        }
+        
+        .notice-item-header {
+            display: flex; align-items: center; gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .notice-item-icon {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.1rem; flex-shrink: 0;
+        }
+        
+        .notice-item-info h4 {
+            font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 800;
+            margin: 0 0 0.2rem 0;
+        }
+        
+        .notice-item-info span {
+            font-size: 0.75rem; color: var(--text3);
+        }
+        
+        .notice-item-message {
+            background: rgba(124,58,237,0.08); border-left: 3px solid var(--primary);
+            padding: 0.9rem 1rem; border-radius: 6px;
+            font-size: 0.9rem; line-height: 1.5;
+            margin: 0.8rem 0;
+            color: var(--text);
+        }
+        
+        .notice-item-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.75rem; color: var(--text3);
+        }
+        
+        .notice-item-meta {
+            display: flex; gap: 1rem;
+        }
+        
+        .notice-item-meta span {
+            display: flex; align-items: center; gap: 0.3rem;
+        }
+        
+        .notice-empty {
+            text-align: center; padding: 2rem 1rem;
+            color: var(--text3);
+        }
+        
+        .notice-empty i {
+            font-size: 2rem; opacity: 0.3; margin-bottom: 0.5rem;
+        }
+        
+        .notice-empty p {
+            font-size: 0.9rem;
+        }
+
         .empty-msg {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center; gap: 1rem;
@@ -1051,6 +1158,22 @@
 </head>
 <body data-theme="dark" style="touch-action: manipulation; -webkit-user-select: none; user-select: none;">
 
+<!-- Notice List Modal -->
+<div class="notice-list-container" id="noticeListContainer">
+    <div class="notice-list-modal">
+        <div class="notice-list-header">
+            <h3><i class="fas fa-bell"></i> All Notices</h3>
+            <button class="notice-list-close" onclick="closeNoticeList()">✕</button>
+        </div>
+        <div class="notice-list-content" id="noticeListContent">
+            <div class="notice-empty">
+                <i class="fas fa-bell"></i>
+                <p>No notices yet</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Toast -->
 <div id="toast"><span id="toastMsg"></span></div>
 
@@ -1249,6 +1372,13 @@
             <span class="tooltip">Dark/Light Mode</span>
         </button>
 
+        <!-- Notices Button -->
+        <button class="notice-list-button" id="noticeBtn" onclick="openNoticeList()" title="Notices">
+            <i class="fas fa-bell"></i>
+            <span class="badge" id="noticeBadge" style="display:none;">0</span>
+            <span class="tooltip">Notices</span>
+        </button>
+
         <button class="sidebar-btn" onclick="openProfile()" title="">
             <img class="sidebar-avatar" id="sidebarAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=campus&backgroundColor=7c3aed" alt="me">
             <span class="tooltip">My Profile</span>
@@ -1401,6 +1531,7 @@ let currentRoom = 'global';
 let msgSubscription = null;
 let noticeSubscription = null;
 let allMessages = [];
+let allNotices = [];
 let joinedRooms = JSON.parse(localStorage.getItem('joinedRooms')) || [];
 
 const ROOMS = {
@@ -1729,9 +1860,84 @@ function checkJoinAndSwitch(room) {
 }
 
 // ============================================================
-// NOTICE
+// SOUND NOTIFICATION
 // ============================================================
-function toggleNoticeForm() {
+function playNotificationSound() {
+    // Using Web Audio API to create a simple beep
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = 800; // 800Hz frequency
+        oscillator.type = 'sine';
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    } catch(e) {
+        console.log('Sound notification skipped');
+    }
+}
+
+// ============================================================
+// NOTICE MANAGEMENT
+// ============================================================
+function openNoticeList() {
+    document.getElementById('noticeListContainer').classList.add('show');
+    renderNoticeList();
+}
+
+function closeNoticeList() {
+    document.getElementById('noticeListContainer').classList.remove('show');
+}
+
+function renderNoticeList() {
+    const content = document.getElementById('noticeListContent');
+    if (!allNotices.length) {
+        content.innerHTML = '<div class="notice-empty"><i class="fas fa-bell"></i><p>No notices yet</p></div>';
+        return;
+    }
+    
+    content.innerHTML = allNotices.map(notice => `
+        <div class="notice-item">
+            <div class="notice-item-header">
+                <div class="notice-item-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="notice-item-info">
+                    <h4>${notice.sender_name || 'Unknown'}</h4>
+                    <span>${notice.sender_dept?.toUpperCase() || 'Unknown Dept'}</span>
+                </div>
+            </div>
+            <div class="notice-item-message">
+                ${escapeHtml(notice.message)}
+            </div>
+            <div class="notice-item-footer">
+                <div class="notice-item-meta">
+                    <span><i class="fas fa-calendar"></i> ${new Date(notice.created_at).toLocaleDateString()}</span>
+                    <span><i class="fas fa-clock"></i> ${new Date(notice.created_at).toLocaleTimeString()}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateNoticeBadge() {
+    const badge = document.getElementById('noticeBadge');
+    if (allNotices.length > 0) {
+        badge.textContent = allNotices.length > 99 ? '99+' : allNotices.length;
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
     document.getElementById('noticeForm').classList.toggle('show');
 }
 
@@ -1776,6 +1982,14 @@ function subscribeNotices() {
             const batchMatch = notice.target_batch === 'all' || notice.target_batch === currentProfile?.batch;
             
             if (deptMatch && batchMatch && notice.user_id !== currentUser.id) {
+                // Add to notices list
+                allNotices.unshift(notice);
+                updateNoticeBadge();
+                
+                // Play sound
+                playNotificationSound();
+                
+                // Show popup
                 showNoticePopup(notice);
             }
         })
