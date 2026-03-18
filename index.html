@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover, user-scalable=no, shrink-to-fit=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
     <title>Campus Circle — Chat</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -55,17 +56,27 @@
             --text3: #8080A0;
         }
 
-        * { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior: smooth; }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-touch-callout: none; -webkit-user-select: none; }
+        html { 
+            scroll-behavior: smooth; 
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
             transition: background 0.3s ease;
             touch-action: manipulation;
+            -webkit-text-size-adjust: 100%;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Toast */
@@ -278,8 +289,9 @@
         .form-input {
             width: 100%; padding: 12px 16px;
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: var(--radius); font-size: 0.92rem;
+            border-radius: var(--radius); font-size: 16px;
             color: var(--text); transition: all 0.2s;
+            font-family: 'Outfit', sans-serif;
         }
         .form-input:focus { outline: none; border-color: var(--primary); background: var(--surface2); }
 
@@ -714,7 +726,7 @@
         #msgInput {
             flex: 1; background: transparent; border: none;
             color: var(--text); font-family: 'Outfit', sans-serif;
-            font-size: 0.93rem; outline: none;
+            font-size: 16px; outline: none;
         }
         #msgInput::placeholder { color: var(--text3); }
 
@@ -862,6 +874,12 @@
             animation: spin 0.6s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
 
         /* Scrollbar Global */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -875,6 +893,16 @@
             .members-panel { display: none; }
         }
 
+        /* TABLET: 769px to 1024px */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .chat-sidebar { width: 60px; }
+            .chat-main { width: calc(100% - 60px); }
+            .rooms-panel { width: 200px; }
+            .members-panel { width: 180px; }
+            .msg-bubble { max-width: 100%; }
+        }
+
+        /* MOBILE: Below 768px */
         @media (max-width: 768px) {
             html, body { width: 100%; overflow-x: hidden; }
             
@@ -1066,7 +1094,7 @@
             
             .chat-input-area { padding: 0.6rem 0.8rem; }
             .chat-input-wrap { padding: 8px 8px 8px 14px; gap: 0.6rem; }
-            #msgInput { font-size: 0.85rem; }
+            #msgInput { font-size: 16px; padding: 8px 0; } /* Keep 16px to prevent zoom, but reduce padding */
             .send-btn { width: 38px; height: 38px; font-size: 0.85rem; }
             
             .auth-card { padding: 1.6rem 1.4rem; margin: 1rem; }
@@ -1075,7 +1103,7 @@
             .auth-logo span { font-size: 1.2rem; }
             .auth-tabs { margin-bottom: 1.4rem; padding: 3px; }
             .auth-tab { font-size: 0.75rem; padding: 7px; }
-            .form-input { padding: 10px 12px; font-size: 0.85rem; }
+            .form-input { padding: 10px 12px; font-size: 16px; } /* Keep 16px to prevent zoom */
             .auth-btn { padding: 11px; font-size: 0.88rem; }
             
             .profile-avatar-wrap { width: 80px; height: 80px; }
@@ -1490,6 +1518,42 @@ function simpleDecrypt(encoded, key = 'campusCircle2024') {
 }
 
 // ============================================================
+// MOBILE VIEWPORT FIX
+// ============================================================
+function fixMobileViewport() {
+    // Prevent double tap zoom
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function(event) {
+        let now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+    
+    // Prevent pinch zoom
+    document.addEventListener('touchmove', function(event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Fix viewport height on mobile
+    function setViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', vh + 'px');
+        document.body.style.height = window.innerHeight + 'px';
+    }
+    
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', setViewportHeight);
+}
+
+// Call immediately
+fixMobileViewport();
+
+// ============================================================
 // APP STATE
 // ============================================================
 let currentUser = null;
@@ -1613,11 +1677,29 @@ function renderNoticeList() {
 function updateNoticeBadge() {
     const badge = document.getElementById('noticeBadge');
     if (allNotices.length > 0) {
-        badge.textContent = allNotices.length > 99 ? '99+' : allNotices.length;
-        badge.style.display = 'flex';
+        const count = allNotices.length > 99 ? '99+' : allNotices.length;
+        badge.textContent = count;
+        badge.style.display = 'block';
     } else {
         badge.style.display = 'none';
     }
+}
+
+function clearNoticeBadge() {
+    allNotices = [];
+    updateNoticeBadge();
+}
+
+function showNotificationNumber(num) {
+    const badge = document.getElementById('noticeBadge');
+    badge.textContent = num > 99 ? '99+' : num;
+    badge.style.display = 'block';
+    
+    // Flash effect
+    badge.style.animation = 'none';
+    setTimeout(() => {
+        badge.style.animation = 'pulse 0.5s ease-in-out';
+    }, 10);
 }
 
 // ============================================================
@@ -2036,11 +2118,16 @@ function showNoticePopup(notice) {
     `;
     
     popup.classList.add('show');
+    
+    // Show badge with number
+    showNotificationNumber(allNotices.length);
+    
     setTimeout(() => popup.classList.remove('show'), 6000);
 }
 
 function closeNoticePopup() {
     document.getElementById('noticePopup').classList.remove('show');
+    clearNoticeBadge(); // Clear badge when notification is closed/seen
 }
 
 // ============================================================
