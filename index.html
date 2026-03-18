@@ -758,43 +758,102 @@
 
         .sidebar-menu {
             display: none; position: relative;
-            width: 42px; height: 42px;
+            width: auto; height: auto;
+            margin-left: auto;
         }
         .sidebar-menu.show { display: flex; }
         .menu-btn {
             background: transparent; border: none;
             color: var(--text2); cursor: pointer;
-            font-size: 1.2rem; display: flex;
+            font-size: 1rem; display: flex;
             align-items: center; justify-content: center;
-            transition: all 0.2s;
+            transition: all 0.2s; padding: 8px;
+            width: 36px; height: 36px;
         }
-        .menu-btn:hover { color: var(--text); }
+        .menu-btn:hover { color: var(--text); background: var(--surface); border-radius: 8px; }
         
         .menu-dropdown {
-            position: absolute; bottom: 100%; right: -10px;
+            position: absolute; top: 100%; right: 0;
             background: var(--bg2); border: 1px solid var(--border);
-            border-radius: var(--radius2); padding: 0.8rem 0;
-            min-width: 150px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            border-radius: var(--radius); padding: 0.6rem 0;
+            min-width: 160px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
             display: none; flex-direction: column; gap: 0;
-            z-index: 1000;
+            z-index: 1000; margin-top: 0.4rem;
         }
         .menu-dropdown.show { display: flex; }
         
         .menu-item {
-            padding: 0.7rem 1.2rem; cursor: pointer;
-            font-size: 0.85rem; color: var(--text2);
+            padding: 0.6rem 1rem; cursor: pointer;
+            font-size: 0.82rem; color: var(--text2);
             transition: all 0.2s; border: none;
             background: transparent; width: 100%; text-align: left;
             display: flex; align-items: center; gap: 0.6rem;
+            font-family: 'Nunito', sans-serif; font-weight: 600;
         }
         .menu-item:hover {
-            background: var(--surface); color: var(--text);
+            background: var(--surface2); color: var(--text);
+            padding-left: 1.2rem;
         }
+        .menu-item i { width: 16px; text-align: center; }
 
-        .room-item .join-btn { display: none; }
+        .room-item .join-btn { display: inline-block; }
+        .room-item .joined-badge { display: none !important; }
+        .room-item .joined-badge.active { display: block !important; }
         
         @media (max-width: 768px) {
-            .room-item .join-btn { display: inline-block !important; }
+            .room-item {
+                display: flex !important;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.8rem;
+            }
+            
+            .room-badge {
+                order: 1;
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+            
+            .room-item-info {
+                order: 2;
+                flex: 1;
+            }
+            
+            .room-item-info h5 {
+                font-size: 0.85rem;
+            }
+            
+            .room-item-info span {
+                font-size: 0.7rem;
+            }
+            
+            .room-item .join-btn {
+                order: 3;
+                display: block !important;
+                margin-left: auto;
+                padding: 5px 10px;
+                font-size: 0.68rem;
+                background: var(--primary);
+                color: white;
+                border: none;
+            }
+            
+            .room-item .join-btn:hover {
+                background: var(--primary-light);
+            }
+            
+            .room-item .joined-badge {
+                order: 3;
+                display: none !important;
+                margin-left: auto;
+                padding: 5px 10px;
+                background: var(--accent2);
+                color: white;
+                border-radius: 30px;
+                font-size: 0.68rem;
+            }
         }
 
         .spinner {
@@ -817,10 +876,20 @@
         }
 
         @media (max-width: 768px) {
+            html, body { width: 100%; overflow-x: hidden; }
+            
+            #chatApp { 
+                flex-direction: column; 
+                width: 100%; 
+                height: 100vh; 
+                display: flex;
+            }
+            
             .chat-sidebar {
                 width: 100%; height: auto; flex-direction: row;
                 border-right: none; border-bottom: 1px solid var(--border);
                 padding: 0.6rem; gap: 0.3rem;
+                order: 1;
             }
             
             .sidebar-logo { width: 38px; height: 38px; font-size: 1rem; margin-bottom: 0; margin-right: 0.5rem; flex-shrink: 0; }
@@ -832,26 +901,141 @@
             .sidebar-btn#btnNotice { display: none; }
             
             .sidebar-spacer { display: none; }
-            .sidebar-avatar { width: 36px; height: 36px; margin-left: auto; flex-shrink: 0; }
+            .sidebar-avatar { width: 36px; height: 36px; margin-left: 0.5rem; flex-shrink: 0; display: none; }
             .notice-bell-btn { display: none; }
-            .sidebar-menu { display: flex; margin-right: 0.5rem; }
+            .sidebar-menu { display: flex; margin-left: auto; margin-right: 0.5rem; }
             
-            .chat-main { width: 100%; height: calc(100vh - 60px); }
+            /* SHOW ROOMS PANEL ON MOBILE */
+            .rooms-panel { 
+                display: flex !important; 
+                width: 100% !important;
+                border-right: none; 
+                border-bottom: 1px solid var(--border);
+                max-height: auto;
+                overflow-y: auto;
+                order: 2;
+                padding: 0;
+                margin: 0;
+            }
             
-            .chat-topbar { padding: 0.8rem 1rem; height: auto; min-height: 56px; gap: 1rem; flex-wrap: wrap; }
+            .rooms-header {
+                padding: 0.8rem 1.2rem;
+                flex-shrink: 0;
+            }
+            
+            .rooms-header h4 {
+                font-size: 0.8rem;
+                margin: 0;
+            }
+            
+            .rooms-scroll-container {
+                width: 100%;
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+                padding: 0 0.8rem 0.8rem 0.8rem;
+                overflow-x: auto;
+            }
+            
+            .room-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.6rem 0.8rem;
+                flex-shrink: 0;
+                min-width: 140px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+            }
+            
+            .room-item.active {
+                background: rgba(124,58,237,0.15);
+                border: 1px solid rgba(124,58,237,0.3);
+            }
+            
+            .room-badge {
+                width: 28px;
+                height: 28px;
+                font-size: 0.95rem;
+                flex-shrink: 0;
+            }
+            
+            .room-item-info {
+                flex: 1;
+            }
+            
+            .room-item-info h5 {
+                font-size: 0.8rem;
+                margin: 0;
+            }
+            
+            .room-item-info span {
+                font-size: 0.68rem;
+                display: none;
+            }
+            
+            .room-item .join-btn {
+                display: block !important;
+                padding: 4px 8px;
+                font-size: 0.65rem;
+                background: var(--primary);
+                color: white;
+                border: none;
+                flex-shrink: 0;
+                margin: 0;
+            }
+            
+            .room-item .join-btn:hover {
+                background: var(--primary-light);
+            }
+            
+            .room-item .joined-badge {
+                display: none !important;
+            }
+            
+            .notice-form {
+                display: none !important;
+            }
+            
+            .chat-main { 
+                width: 100% !important;
+                min-width: 0;
+                flex: 1;
+                order: 3;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .chat-topbar { 
+                padding: 0.8rem 1rem; 
+                height: auto; 
+                min-height: 50px; 
+                gap: 1rem; 
+                flex-wrap: wrap; 
+                flex-shrink: 0;
+            }
             .chat-topbar-left { gap: 0.8rem; }
             .room-icon { width: 36px; height: 36px; font-size: 1.1rem; }
             .room-info h4 { font-size: 0.9rem; }
             .online-count { font-size: 0.7rem; padding: 5px 10px; }
             
-            .chat-messages { padding: 1rem; }
+            .chat-messages { 
+                padding: 1rem;
+                flex: 1;
+            }
             .msg-body { max-width: 80%; }
             .msg-avatar { width: 32px; height: 32px; }
             .msg-bubble { padding: 9px 12px; font-size: 0.88rem; }
             
-            .chat-input-area { padding: 0.8rem 1rem; }
+            .chat-input-area { 
+                padding: 0.8rem 1rem;
+                flex-shrink: 0;
+            }
             .chat-input-wrap { padding: 8px 8px 8px 16px; }
             .send-btn { width: 40px; height: 40px; }
+            
+            .members-panel { display: none; }
             
             .auth-card { padding: 2rem 1.8rem; margin: 0 1rem; }
             .profile-body { padding: 1.5rem 1rem; max-width: 100%; }
