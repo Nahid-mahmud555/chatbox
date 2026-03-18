@@ -381,8 +381,9 @@
         }
 
         .notice-target {
-            background: rgba(124,58,237,0.1);
-            padding: 4px 8px;
+            background: rgba(124,58,237,0.15);
+            color: var(--primary);
+            padding: 4px 10px;
             border-radius: 30px;
             font-size: 0.7rem;
             font-weight: 600;
@@ -824,9 +825,9 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            max-width: 300px;
+            max-width: 320px;
             background: var(--bg3);
-            border: 1px solid var(--primary);
+            border: 2px solid var(--primary);
             border-radius: 16px;
             padding: 16px;
             transform: translateX(400px);
@@ -835,6 +836,20 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         #noticePopup.show { transform: translateX(0); }
+
+        .notice-popup-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #noticePopupContent {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
 
         /* Loading Spinner */
         .spinner {
@@ -1158,6 +1173,7 @@
                     <option value="bba">BBA</option>
                     <option value="english">English</option>
                     <option value="law">Law</option>
+                    <option value="economics">Economics</option>
                 </select>
             </div>
             <div class="form-group">
@@ -1510,42 +1526,195 @@
             showToast('Photo updated!');
         }
 
-        // ==================== NOTICES HISTORY ====================
-        async function loadUserNotices() {
-            if (!currentUser) return;
+        // ==================== NOTICES SYSTEM ====================
+        function toggleNoticeForm() {
+            document.getElementById('noticeForm').classList.toggle('show');
+        }
+
+        async function sendNotice(e) {
+            e.preventDefault();
             
-            const { data, error } = await _supabase
-                .from('notices')
-                .select('*')
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false })
-                .limit(20);
-                
-            if (error) {
-                console.log('Error loading notices:', error);
+            const targetDept = document.getElementById('noticeDept').value;
+            const targetBatch = document.getElementById('noticeBatch').value;
+            const message = document.getElementById('noticeMessage').value.trim();
+            
+            if (!message) {
+                showToast('Please write a notice message', 'error');
                 return;
             }
             
-            document.getElementById('noticeCount').innerText = data?.length || 0;
-            renderNoticesList(data || []);
+            const btn = e.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span> Sending...';
+            
+            try {
+                const notice = {
+                    user_id: currentUser.id,
+                    sender_name: currentProfile.name,
+                    sender_dept: currentProfile.department,
+                    target_dept: targetDept,
+                    target_batch: targetBatch,
+                    message: message,
+                    created_at: new Date().toISOString()
+                };
+                
+                const { error } = await _supabase
+                    .from('notices')
+                    .insert(notice);
+                
+                if (error) throw error;
+                
+                showToast('Notice sent successfully!', 'success');
+                document.getElementById('noticeMessage').value = '';
+                toggleNoticeForm();
+                loadUserNotices();
+                
+            } catch (error) {
+                console.error('Send notice error:', error);
+                showToast('Failed to send notice: ' + error.message, 'error');
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+
+        function subscribeNotices() {
+            if (noticeSubscription) {
+                noticeSubscription.unsubscribe();
+            }
+            
+            noticeSubscription = _supabase
+                .channel('notices-channel')
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notices'
+                }, (payload) => {
+                    const notice = payload.new;
+                    
+                    if (notice.user_id === currentUser?.id) {
+                        loadUserNotices();
+                        return;
+                    }
+                    
+                    if (shouldReceiveNotice(notice)) {
+                        showNoticePopup(notice);
+                        playNotificationSound();
+                    }
+                })
+                .subscribe();
+        }
+
+        function shouldReceiveNotice(notice) {
+            if (!currentProfile) return false;
+            
+            const deptMatch = notice.target_dept === 'all' || 
+                            notice.target_dept === currentProfile.department;
+            
+            const batchMatch = notice.target_batch === 'all' || 
+                             notice.target_batch === currentProfile.batch;
+            
+            return deptMatch && batchMatch;
+        }
+
+        function showNoticePopup(notice) {
+            const popup = document.getElementById('noticePopup');
+            const content = document.getElementById('noticePopupContent');
+            
+            const fromText = notice.sender_name || 'Someone';
+            const deptText = notice.sender_dept ? ` (${notice.sender_dept.toUpperCase()})` : '';
+            
+            let targetText = '';
+            if (notice.target_dept === 'all' && notice.target_batch === 'all') {
+                targetText = '📢 For Everyone';
+            } else if (notice.target_dept === 'all') {
+                targetText = `📢 For Batch ${notice.target_batch}`;
+            } else if (notice.target_batch === 'all') {
+                targetText = `📢 For ${notice.target_dept.toUpperCase()} Department`;
+            } else {
+                targetText = `📢 For ${notice.target_dept.toUpperCase()} • Batch ${notice.target_batch}`;
+            }
+            
+            content.innerHTML = `
+                <div style="margin-bottom:8px;">
+                    <strong>${fromText}${deptText}</strong>
+                </div>
+                <div style="margin-bottom:8px; font-size:0.8rem; color:var(--primary);">${targetText}</div>
+                <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:8px;">
+                    "${notice.message}"
+                </div>
+            `;
+            
+            popup.classList.add('show');
+            
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 5000);
+        }
+
+        function closeNoticePopup() {
+            document.getElementById('noticePopup').classList.remove('show');
+        }
+
+        async function loadUserNotices() {
+            if (!currentUser) return;
+            
+            try {
+                const { data, error } = await _supabase
+                    .from('notices')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(20);
+                
+                if (error) throw error;
+                
+                document.getElementById('noticeCount').innerText = data?.length || 0;
+                renderNoticesList(data || []);
+                
+            } catch (error) {
+                console.error('Load notices error:', error);
+            }
         }
 
         function renderNoticesList(notices) {
             const container = document.getElementById('noticesList');
             
             if (!notices.length) {
-                container.innerHTML = '<div class="empty-msg" style="padding:20px;"><i class="fas fa-bell-slash"></i><p>No notices sent yet</p></div>';
+                container.innerHTML = `
+                    <div class="empty-msg" style="padding:20px;">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notices sent yet</p>
+                    </div>
+                `;
                 return;
             }
             
             container.innerHTML = notices.map(notice => {
-                const date = new Date(notice.created_at).toLocaleString();
-                const target = `${notice.target_dept === 'all' ? 'All Depts' : notice.target_dept.toUpperCase()} • ${notice.target_batch === 'all' ? 'All Batches' : notice.target_batch}`;
+                const date = new Date(notice.created_at).toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                let targetText = '';
+                if (notice.target_dept === 'all' && notice.target_batch === 'all') {
+                    targetText = 'Everyone';
+                } else if (notice.target_dept === 'all') {
+                    targetText = `Batch ${notice.target_batch}`;
+                } else if (notice.target_batch === 'all') {
+                    targetText = `${notice.target_dept.toUpperCase()} Dept`;
+                } else {
+                    targetText = `${notice.target_dept.toUpperCase()} • Batch ${notice.target_batch}`;
+                }
                 
                 return `
                     <div class="notice-item">
                         <div class="notice-header">
-                            <span class="notice-target">${target}</span>
+                            <span class="notice-target">🎯 ${targetText}</span>
                             <span>📨 Sent</span>
                         </div>
                         <div class="notice-message">${escapeHtml(notice.message)}</div>
@@ -1593,87 +1762,6 @@
             } else {
                 showToast(`Please join ${room} room first`, 'error');
             }
-        }
-
-        // ==================== NOTICE ====================
-        function toggleNoticeForm() {
-            document.getElementById('noticeForm').classList.toggle('show');
-        }
-
-        async function sendNotice(e) {
-            e.preventDefault();
-            
-            const dept = document.getElementById('noticeDept').value;
-            const batch = document.getElementById('noticeBatch').value;
-            const message = document.getElementById('noticeMessage').value.trim();
-            
-            if (!message) return showToast('Write a message', 'error');
-            
-            const btn = e.target;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner"></span> Sending...';
-            
-            const notice = {
-                user_id: currentUser.id,
-                sender_name: currentProfile.name,
-                sender_dept: currentProfile.department,
-                target_dept: dept,
-                target_batch: batch,
-                message: message,
-                created_at: new Date().toISOString()
-            };
-            
-            const { error } = await _supabase.from('notices').insert(notice);
-            
-            if (error) {
-                showToast(error.message, 'error');
-            } else {
-                showToast('Notice sent!');
-                document.getElementById('noticeMessage').value = '';
-                toggleNoticeForm();
-                loadUserNotices(); // রিফ্রেশ হিস্টোরি
-            }
-            
-            btn.disabled = false;
-            btn.innerHTML = 'Send Notice';
-        }
-
-        function subscribeNotices() {
-            noticeSubscription = _supabase
-                .channel('notices')
-                .on('postgres_changes', {
-                    event: 'INSERT',
-                    schema: 'public',
-                    table: 'notices'
-                }, (payload) => {
-                    const notice = payload.new;
-                    
-                    if (notice.user_id === currentUser?.id) {
-                        loadUserNotices();
-                        return;
-                    }
-                    
-                    const deptMatch = notice.target_dept === 'all' || notice.target_dept === currentProfile?.department;
-                    const batchMatch = notice.target_batch === 'all' || notice.target_batch === currentProfile?.batch;
-                    
-                    if (deptMatch && batchMatch) {
-                        showNoticePopup(notice);
-                        playNotificationSound();
-                    }
-                })
-                .subscribe();
-        }
-
-        function showNoticePopup(notice) {
-            const popup = document.getElementById('noticePopup');
-            document.getElementById('noticePopupContent').innerHTML = 
-                `<strong>${notice.sender_name}</strong>: ${notice.message}`;
-            popup.classList.add('show');
-            setTimeout(() => popup.classList.remove('show'), 5000);
-        }
-
-        function closeNoticePopup() {
-            document.getElementById('noticePopup').classList.remove('show');
         }
 
         // ==================== CHAT ROOMS ====================
