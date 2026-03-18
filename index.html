@@ -2088,15 +2088,29 @@ function switchRoom(room) {
 
 async function loadMessages() {
     const channel = getRoomChannel(currentRoom);
-    const { data } = await _supabase
-        .from('messages')
-        .select('*, profiles(name, avatar_url)')
-        .eq('room', channel)
-        .order('created_at', { ascending: true })
-        .limit(80);
+    console.log('Loading messages for channel:', channel);
+    
+    try {
+        const { data, error } = await _supabase
+            .from('messages')
+            .select('*, profiles(name, avatar_url)')
+            .eq('room', channel)
+            .order('created_at', { ascending: true })
+            .limit(100);
 
-    allMessages = data || [];
-    renderAllMessages();
+        if (error) {
+            console.error('Error loading messages:', error);
+            showToast('Failed to load messages', 'error');
+            return;
+        }
+
+        allMessages = data || [];
+        console.log(`Loaded ${allMessages.length} messages`);
+        renderAllMessages();
+    } catch(e) {
+        console.error('Load messages error:', e);
+        showToast('Error loading messages', 'error');
+    }
 }
 
 function renderAllMessages() {
@@ -2172,9 +2186,15 @@ function subscribeMessages() {
         }, async (payload) => {
             try {
                 const newMsg = payload.new;
+                console.log('New message received:', newMsg);
                 
-                if (allMessages.find(m => m.id === newMsg.id)) return;
+                // Check if already in list
+                if (allMessages.find(m => m.id === newMsg.id)) {
+                    console.log('Message already exists');
+                    return;
+                }
                 
+                // Fetch full message with profile
                 const { data, error } = await _supabase
                     .from('messages')
                     .select('*, profiles(name, avatar_url)')
@@ -2182,19 +2202,32 @@ function subscribeMessages() {
                     .single();
 
                 if (data && !error) {
+                    console.log('Message loaded successfully:', data);
+                    
+                    // Remove empty message if exists
                     const emptyMsg = document.querySelector('.empty-msg');
                     if (emptyMsg) emptyMsg.remove();
                     
+                    // Add to array
                     allMessages.push(data);
+                    
+                    // Build and append element
                     const msgEl = buildMsgEl(data);
-                    document.getElementById('chatMessages').appendChild(msgEl);
-                    scrollBottom();
+                    const container = document.getElementById('chatMessages');
+                    if (container) {
+                        container.appendChild(msgEl);
+                        scrollBottom();
+                    }
+                } else {
+                    console.error('Error fetching message:', error);
                 }
             } catch(e) {
                 console.error('Message subscription error:', e);
             }
         })
-        .subscribe();
+        .subscribe((status) => {
+            console.log('Subscription status:', status);
+        });
 }
 
 async function sendMessage() {
